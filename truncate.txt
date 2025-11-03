@@ -1,0 +1,7 @@
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE services_answers;
+TRUNCATE TABLE services_requests;
+TRUNCATE TABLE services_field_options;
+TRUNCATE TABLE services_fields;
+TRUNCATE TABLE services_list;
+SET FOREIGN_KEY_CHECKS = 1;
