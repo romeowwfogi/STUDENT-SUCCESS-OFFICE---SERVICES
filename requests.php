@@ -466,7 +466,7 @@ try {
                     <div class="table-toolbar" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-bottom: 1px solid rgba(0,0,0,0.06);">
                         <div style="flex:1; max-width: 380px; position: relative;">
                             <input id="requestSearch" type="text" placeholder="Search requests..." aria-label="Search requests"
-                                   style="width:100%; padding:10px 12px 10px 36px; border:1px solid rgba(0,0,0,0.12); border-radius:8px; background: var(--surface); color: var(--on-background); box-shadow: var(--elevation-0);">
+                                style="width:100%; padding:10px 12px 10px 36px; border:1px solid rgba(0,0,0,0.12); border-radius:8px; background: var(--surface); color: var(--on-background); box-shadow: var(--elevation-0);">
                             <span style="position:absolute; left:10px; top:50%; transform: translateY(-50%); color: var(--on-surface); opacity:.6;">
                                 <i data-lucide="search" style="width:18px; height:18px;"></i>
                             </span>
@@ -669,7 +669,15 @@ try {
                 const statusText = (tr.querySelector('.status-badge')?.textContent || '').trim().toLowerCase();
                 const remarksText = (tr.querySelector('.remarks')?.textContent || tr.querySelector('.no-remarks')?.textContent || '').trim().toLowerCase();
                 const fullText = (tr.textContent || '').toLowerCase();
-                return { tr, idx, id, service: serviceName, status: statusText, remarks: remarksText, fullText };
+                return {
+                    tr,
+                    idx,
+                    id,
+                    service: serviceName,
+                    status: statusText,
+                    remarks: remarksText,
+                    fullText
+                };
             });
 
             const searchInput = document.getElementById('requestSearch');
