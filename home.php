@@ -728,7 +728,7 @@ try {
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="requests.php">
                         <i data-lucide="file-text"></i>
                         My Request
                     </a>

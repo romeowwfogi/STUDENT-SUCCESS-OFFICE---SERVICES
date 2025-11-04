@@ -89,3 +89,6 @@ CREATE TABLE services_answers (
     FOREIGN KEY (field_id) REFERENCES services_fields(field_id)
         ON DELETE CASCADE
 );
+
+ALTER TABLE `services_requests`
+ADD COLUMN `can_update` BOOLEAN NOT NULL DEFAULT 0 AFTER `admin_remarks`;
