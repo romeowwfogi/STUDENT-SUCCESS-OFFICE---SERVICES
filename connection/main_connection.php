@@ -67,6 +67,11 @@ $TITLE_REGISTER_ACCOUNT = 'Student Support Services - Register Account';
 $SUBJECT_REGISTER_ACCOUNT = null;
 $HTML_CODE_REGISTER_ACCOUNT = null;
 
+
+$TITLE_SERVICE_REQUEST = 'Student Support Services - Service Request';
+$SUBJECT_SERVICE_REQUEST = null;
+$HTML_CODE_SERVICE_REQUEST = null;
+
 while ($row = $result->fetch_assoc()) {
   // Match titles case-insensitively and trim whitespace to avoid mismatch
   if (strcasecmp(trim($row['title']), trim($TITLE_RESET_PASSWORD)) === 0) {
@@ -79,10 +84,16 @@ while ($row = $result->fetch_assoc()) {
     $HTML_CODE_REGISTER_ACCOUNT = $row['html_code'];
   }
 
+  if (strcasecmp(trim($row['title']), trim($TITLE_SERVICE_REQUEST)) === 0) {
+    $SUBJECT_SERVICE_REQUEST = $row['subject'];
+    $HTML_CODE_SERVICE_REQUEST = $row['html_code'];
+  }
+
   // stop if found
   if (
     $HTML_CODE_RESET_PASSWORD &&
-    $HTML_CODE_REGISTER_ACCOUNT
+    $HTML_CODE_REGISTER_ACCOUNT &&
+    $HTML_CODE_SERVICE_REQUEST
   ) {
     break;
   }

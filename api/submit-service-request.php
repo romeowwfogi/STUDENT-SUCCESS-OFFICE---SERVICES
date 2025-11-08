@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 include '../connection/main_connection.php';
+require_once __DIR__ . '/../functions/send_email.php';
 
 header('Content-Type: application/json');
 
@@ -167,6 +168,68 @@ try {
 
     // Commit transaction
     $conn->commit();
+
+    // Prepare and send confirmation email to logged-in user using template
+    try {
+        // Fetch user email and fullname parts
+        $stmtU = $conn->prepare('SELECT email, first_name, middle_name, last_name, suffix FROM services_users WHERE id = ? LIMIT 1');
+        $stmtU->bind_param('i', $user_id);
+        $stmtU->execute();
+        $resU = $stmtU->get_result();
+        $userEmail = null;
+        $registeredFullname = 'N/A';
+        if ($resU && $rowU = $resU->fetch_assoc()) {
+            $userEmail = (string)($rowU['email'] ?? '');
+            $fn = trim((string)($rowU['first_name'] ?? ''));
+            $mn = trim((string)($rowU['middle_name'] ?? ''));
+            $ln = trim((string)($rowU['last_name'] ?? ''));
+            $sf = trim((string)($rowU['suffix'] ?? ''));
+            if ($fn && $ln) {
+                $registeredFullname = trim($fn . ($mn ? ' ' . $mn : '') . ' ' . $ln . ($sf ? ' ' . $sf : ''));
+            }
+        }
+        $stmtU->close();
+
+        // Resolve status name for default status
+        $statusName = 'Pending';
+        $stmtS = $conn->prepare('SELECT status_name FROM services_request_statuses WHERE status_id = ? LIMIT 1');
+        $stmtS->bind_param('i', $default_status_id);
+        $stmtS->execute();
+        $resS = $stmtS->get_result();
+        if ($resS && $rowS = $resS->fetch_assoc()) {
+            $statusName = (string)($rowS['status_name'] ?? 'Pending');
+        }
+        $stmtS->close();
+
+        $remarksText = 'N/A';
+
+        // Build email subject/body using template if available
+        $subject = !empty($SUBJECT_SERVICE_REQUEST) ? $SUBJECT_SERVICE_REQUEST : 'Service Request Submitted';
+        if (!empty($HTML_CODE_SERVICE_REQUEST)) {
+            $body = str_replace(
+                ['{{registered_fullname}}', '{{service_name}}', '{{request_id}}', '{{status}}', '{{remarks}}'],
+                [htmlspecialchars($registeredFullname), htmlspecialchars($service['name']), htmlspecialchars((string)$request_id), htmlspecialchars($statusName), htmlspecialchars($remarksText)],
+                $HTML_CODE_SERVICE_REQUEST
+            );
+        } else {
+            // Fallback simple HTML body
+            $body = '<p>Hello ' . htmlspecialchars($registeredFullname) . ',</p>' .
+                '<p>Your service request has been submitted.</p>' .
+                '<ul>' .
+                    '<li><strong>Request ID:</strong> ' . htmlspecialchars((string)$request_id) . '</li>' .
+                    '<li><strong>Service:</strong> ' . htmlspecialchars($service['name']) . '</li>' .
+                    '<li><strong>Status:</strong> ' . htmlspecialchars($statusName) . '</li>' .
+                    '<li><strong>Remarks:</strong> ' . htmlspecialchars($remarksText) . '</li>' .
+                '</ul>' .
+                '<p>— Pamantasan ng Lungsod ng Pasig - Student Success Office</p>';
+        }
+
+        if (!empty($userEmail)) {
+            try { sendEmail($userEmail, $subject, $body); } catch (Throwable $e) { /* ignore email errors */ }
+        }
+    } catch (Throwable $e) {
+        // Do not block success if email fails
+    }
 
     // Return success response
     echo json_encode([
