@@ -115,6 +115,7 @@ try {
             color: #fff;
             box-shadow: var(--elevation-1);
             padding: 24px;
+            z-index: 1000;
         }
 
         .sidebar-header h2 {
@@ -235,14 +236,64 @@ try {
             font-style: italic;
         }
 
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
+                width: -webkit-fill-available !important;
+                height: -webkit-fill-available !important;
             }
 
             .main-content {
                 margin-left: 0;
                 padding: 16px;
+            }
+
+            /* Vertical card-style answers table on mobile */
+            .answers-table {
+                display: block;
+                border-collapse: separate;
+                width: 100%;
+            }
+            .answers-table thead {
+                display: none;
+            }
+            .answers-table tbody {
+                display: block;
+            }
+            .answers-table tr {
+                display: block;
+                margin: 12px 0;
+                background: var(--surface);
+                border-radius: 12px;
+                box-shadow: var(--elevation-1);
+                overflow: hidden;
+            }
+            .answers-table td {
+                display: grid;
+                grid-template-columns: 110px 1fr;
+                gap: 10px;
+                padding: 12px 16px;
+                border: none;
+                text-align: left !important;
+                color: var(--on-surface);
+                min-width: 0; /* allow content to shrink inside grid */
+                word-break: break-word; /* wrap long strings like emails */
+                overflow-wrap: anywhere; /* ensure no horizontal overflow */
+            }
+            .answers-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--on-surface);
+                opacity: 0.85;
+            }
+        }
+
+        /* Ultra-small screens tweaks */
+        @media (max-width: 480px) {
+            .answers-table td {
+                grid-template-columns: 100px 1fr;
+                padding: 12px;
             }
         }
     </style>
@@ -272,7 +323,7 @@ try {
 </head>
 
 <body>
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2 class="user-fullname"><i data-lucide="graduation-cap"></i> Student Success Office</h2>
         </div>
@@ -329,8 +380,8 @@ try {
                             <tbody>
                                 <?php foreach ($answers as $a): ?>
                                     <tr>
-                                        <td><strong><?php echo htmlspecialchars($a['field_label']); ?></strong></td>
-                                        <td>
+                                        <td data-label="Field"><strong><?php echo htmlspecialchars($a['field_label']); ?></strong></td>
+                                        <td data-label="Answer">
                                             <?php
                                             $fid = intval($a['field_id']);
                                             $ftype = $a['field_type'];
@@ -367,6 +418,7 @@ try {
     </main>
 
     <script>
+        // Initialize Lucide icons
         lucide.createIcons();
     </script>
 </body>

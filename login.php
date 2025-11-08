@@ -148,11 +148,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmtLL = $conn->prepare('UPDATE services_users SET last_login_at = NOW() WHERE id = ?');
                     $stmtLL->bind_param('i', $userId);
                     $stmtLL->execute();
-                    
+
                     // Set session variables
                     $_SESSION['user_id'] = $userId;
                     $_SESSION['email'] = $emailValue;
-                    
+
                     header('Location: home.php');
                     exit;
                 } else {
@@ -192,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php
                 $auth_header_class = 'login-header';
-                $auth_subtitle = 'Admission | Sign in';
+                $auth_subtitle = 'Support Services| Sign in';
                 include "includes/auth_header.php";
                 ?>
 
@@ -226,12 +226,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="submit" class="login-button" id="login-button">LOGIN ACCOUNT</button>
                     </form>
 
-                    <a href="login/email-otp" class="otp-button-link">
-                        <button type="button" class="otp-button">LOGIN VIA OTP</button>
-                    </a>
-
                     <p class="signup-text">
-                        Don't have an account? <a href="register" class="signup-link">Sign up</a>
+                        Don't have an account? <a href="register.php" class="signup-link">Sign up</a>
                     </p>
                 </div>
             </div>

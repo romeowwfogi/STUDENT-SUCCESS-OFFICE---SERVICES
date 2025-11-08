@@ -15,8 +15,8 @@
         background: rgba(0, 0, 0, 0.4);
         justify-content: center;
         align-items: center;
-        /* Ensure message modal renders above edit/view/preview overlays */
-        z-index: 1300;
+        /* Ensure message modal renders above other overlays */
+        z-index: 15000;
     }
 
     .message-modalv1-modal.active {

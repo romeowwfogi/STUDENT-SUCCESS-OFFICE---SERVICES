@@ -68,6 +68,7 @@ try {
             left: 0;
             top: 0;
             height: 100vh;
+            z-index: 1000;
         }
 
         .sidebar-header {
@@ -225,11 +226,61 @@ try {
             padding-left: 20px;
             color: #334155;
         }
+
+        /* Mobile menu button (hamburger) */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--surface);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            color: var(--on-surface);
+        }
+
+        .mobile-menu-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Mobile Responsive Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                width: 100vw; /* fallback */
+                width: -webkit-fill-available !important; /* iOS full-width */
+                height: 100vh; /* fallback */
+                height: -webkit-fill-available !important; /* iOS full-height */
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <aside class="sidebar">
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <i data-lucide="menu"></i>
+    </button>
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2 class="user-fullname">Student Success Office</h2>
         </div>
@@ -329,6 +380,28 @@ try {
 
     <script>
         lucide.createIcons();
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            if (
+                window.innerWidth <= 768 &&
+                sidebar &&
+                !sidebar.contains(event.target) &&
+                menuBtn &&
+                !menuBtn.contains(event.target) &&
+                sidebar.classList.contains('active')
+            ) {
+                sidebar.classList.remove('active');
+            }
+        });
 
         function showStatus(id, message, kind) {
             const el = document.getElementById(id);

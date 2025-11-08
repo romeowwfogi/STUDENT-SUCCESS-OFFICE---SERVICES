@@ -97,8 +97,8 @@ $findRes = $stmtFind->get_result();
 if ($findRes && $findRes->num_rows > 0) {
     $row = $findRes->fetch_assoc();
     $existingId = (int)$row['id'];
-    $stmtUpd = $conn->prepare('UPDATE services_email_otp_codes SET six_digit = ?, expires_at = ?, attempts = 0 WHERE id = ?');
-    $stmtUpd->bind_param('ssi', $otpCode, $expiresAt, $existingId);
+        $stmtUpd = $conn->prepare('UPDATE services_email_otp_codes SET six_digit = ?, expires_at = ?, attempts = 0, consumed_at = NULL WHERE id = ?');
+        $stmtUpd->bind_param('ssi', $otpCode, $expiresAt, $existingId);
     $ok = $stmtUpd->execute();
     if (!$ok) {
         echo json_encode(['success' => false, 'message' => 'Failed to update the code.']);
@@ -114,14 +114,27 @@ if ($findRes && $findRes->num_rows > 0) {
     }
 }
 
-// Send email
-$subject = ($purpose === 'register') ? 'Your PLP SSO verification code' : 'Your PLP SSO login code';
-$ttlText = isset($expiresAt) ? (new DateTime($expiresAt, new DateTimeZone('Asia/Manila')))->format('M d, Y h:i A') : '';
-$body = '<p>Hello,</p>' .
-    '<p>Your ' . ($purpose === 'register' ? 'verification' : 'login') . ' code is <strong>' . htmlspecialchars($otpCode) . '</strong>.</p>' .
-    ($ttlText ? '<p>This code expires at <strong>' . $ttlText . ' (Asia/Manila)</strong>.</p>' : '') .
-    '<p>If you did not request this, you can ignore this email.</p>' .
-    '<p>— Pamantasan ng Lungsod ng Pasig - Student Success Office</p>';
+// Send email (use template for register purpose if available)
+$expireAtFormatted = isset($expiresAt)
+    ? (new DateTime($expiresAt, new DateTimeZone('Asia/Manila')))->format('F j, Y - h:i A')
+    : '';
+
+if ($purpose === 'register' && !empty($HTML_CODE_REGISTER_ACCOUNT)) {
+    $subject = !empty($SUBJECT_REGISTER_ACCOUNT) ? $SUBJECT_REGISTER_ACCOUNT : 'Your PLP SSO verification code';
+    $body = str_replace(
+        ['{{otp_code}}', '{{expire_at}}'],
+        [htmlspecialchars($otpCode), htmlspecialchars($expireAtFormatted)],
+        $HTML_CODE_REGISTER_ACCOUNT
+    );
+} else {
+    // Fallback simple email for login or if template unavailable
+    $subject = ($purpose === 'register') ? 'Your PLP SSO verification code' : 'Your PLP SSO login code';
+    $body = '<p>Hello,</p>' .
+        '<p>Your ' . ($purpose === 'register' ? 'verification' : 'login') . ' code is <strong>' . htmlspecialchars($otpCode) . '</strong>.</p>' .
+        ($expireAtFormatted ? '<p>This code expires at <strong>' . htmlspecialchars($expireAtFormatted) . ' (Asia/Manila)</strong>.</p>' : '') .
+        '<p>If you did not request this, you can ignore this email.</p>' .
+        '<p>— Pamantasan ng Lungsod ng Pasig - Student Success Office</p>';
+}
 
 try {
     sendEmail($email, $subject, $body);

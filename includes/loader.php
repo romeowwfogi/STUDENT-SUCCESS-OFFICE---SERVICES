@@ -8,7 +8,7 @@
         height: 100%;
         background: rgb(0 0 0 / 80%);
         backdrop-filter: blur(3px);
-        z-index: 9999;
+        z-index: 99999;
         /* display: flex; */
         align-items: center;
         justify-content: center;

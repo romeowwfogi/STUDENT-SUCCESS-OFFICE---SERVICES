@@ -138,7 +138,7 @@ require_once "functions/send_email.php";
 
                 <?php
                 $auth_header_class = 'signup-header';
-                $auth_subtitle = 'Admission | Sign up';
+                $auth_subtitle = 'Support Services | Sign up';
                 include "includes/auth_header.php";
                 ?>
 
@@ -222,14 +222,30 @@ require_once "functions/send_email.php";
                                         $okOtp = $stmtOtp->execute();
 
                                         if ($okOtp) {
-                                            // attempt to send OTP email
-                                            $subject = 'Your PLP SSO verification code';
-                                            $ttlText = isset($expiresAt) ? (new DateTime($expiresAt, new DateTimeZone('Asia/Manila')))->format('M d, Y h:i A') : '';
-                                            $body = '<p>Hello,</p>' .
-                                                '<p>Your verification code is <strong>' . htmlspecialchars($otp_code) . '</strong>.</p>' .
-                                                ($ttlText ? '<p>This code expires at <strong>' . $ttlText . ' (Asia/Manila)</strong>.</p>' : '') .
-                                                '<p>If you did not request this, you can ignore this email.</p>' .
-                                                '<p>— Pamantasan ng Lungsod ng Pasig - Student Success Office</p>';
+                                            // attempt to send OTP email using REGISTER ACCOUNT template with placeholders
+                                            $expireAtFormatted = isset($expiresAt)
+                                                ? (new DateTime($expiresAt, new DateTimeZone('Asia/Manila')))->format('F j, Y - h:i A')
+                                                : '';
+
+                                            if (!empty($HTML_CODE_REGISTER_ACCOUNT)) {
+                                                $subject = !empty($SUBJECT_REGISTER_ACCOUNT)
+                                                    ? $SUBJECT_REGISTER_ACCOUNT
+                                                    : 'Your PLP SSO verification code';
+                                                $body = str_replace(
+                                                    ['{{otp_code}}', '{{expire_at}}'],
+                                                    [htmlspecialchars($otp_code), htmlspecialchars($expireAtFormatted)],
+                                                    $HTML_CODE_REGISTER_ACCOUNT
+                                                );
+                                            } else {
+                                                // Fallback plain HTML body if template is unavailable
+                                                $subject = 'Your PLP SSO verification code';
+                                                $body = '<p>Hello,</p>' .
+                                                    '<p>Your verification code is <strong>' . htmlspecialchars($otp_code) . '</strong>.</p>' .
+                                                    ($expireAtFormatted ? '<p>This code expires at <strong>' . htmlspecialchars($expireAtFormatted) . ' (Asia/Manila)</strong>.</p>' : '') .
+                                                    '<p>If you did not request this, you can ignore this email.</p>' .
+                                                    '<p>— Pamantasan ng Lungsod ng Pasig - Student Success Office</p>';
+                                            }
+
                                             try {
                                                 sendEmail($emailValue, $subject, $body);
                                                 $serverMessage = 'We sent a 6-digit code to your email. Enter it below to verify.';
@@ -389,7 +405,7 @@ require_once "functions/send_email.php";
                     <button type="submit" class="create-button" id="createButton"><?php echo $otpPending ? 'VERIFY OTP' : 'CREATE ACCOUNT'; ?></button>
 
                     <p class="signin-text">
-                        Already have an account? <a href="login" class="signin-link">Sign in</a>
+                        Already have an account? <a href="login.php" class="signin-link">Sign in</a>
                     </p>
                     <?php if (isset($serverMessage) && !$otpPending && (!isset($stage) || $stage !== 'verify_otp')): ?>
                         <script>
@@ -411,9 +427,21 @@ require_once "functions/send_email.php";
                                         error: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-octagon"><path d="M7.86 2h8.28a2 2 0 0 1 1.41.59l4.86 4.86a2 2 0 0 1 .59 1.41v8.28a2 2 0 0 1-.59 1.41l-4.86 4.86a2 2 0 0 1-1.41.59H7.86a2 2 0 0 1-1.41-.59L1.59 18.55A2 2 0 0 1 1 17.14V8.86a2 2 0 0 1 .59-1.41l4.86-4.86A2 2 0 0 1 7.86 2Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`
                                     };
                                     const colors = {
-                                        success: { title: 'Success', iconBg: '#dcfce7', btnBg: '#16a34a' },
-                                        failed: { title: 'Failed', iconBg: '#fee2e2', btnBg: '#b91c1c' },
-                                        error: { title: 'Error', iconBg: '#fef3c7', btnBg: '#f59e0b' }
+                                        success: {
+                                            title: 'Success',
+                                            iconBg: '#dcfce7',
+                                            btnBg: '#16a34a'
+                                        },
+                                        failed: {
+                                            title: 'Failed',
+                                            iconBg: '#fee2e2',
+                                            btnBg: '#b91c1c'
+                                        },
+                                        error: {
+                                            title: 'Error',
+                                            iconBg: '#fef3c7',
+                                            btnBg: '#f59e0b'
+                                        }
                                     };
 
                                     const cfg = colors[type];
@@ -426,7 +454,9 @@ require_once "functions/send_email.php";
                                         message: msg,
                                         cancelText: 'Close',
                                         actionText: 'OK',
-                                        onConfirm: () => { messageModalV1Dismiss(); }
+                                        onConfirm: () => {
+                                            messageModalV1Dismiss();
+                                        }
                                     });
                                 };
                                 if (document.readyState === 'loading') {

@@ -51,3 +51,40 @@ while ($row = $result->fetch_assoc()) {
   }
 }
 //END - API LIST
+
+//START - TEMPLATE LIST
+$stmt = $conn->prepare("SELECT * FROM email_template WHERE is_active = 1");
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+$TITLE_RESET_PASSWORD = 'Student Support Services - Reset Password';
+$SUBJECT_RESET_PASSWORD = null;
+$HTML_CODE_RESET_PASSWORD = null;
+
+
+$TITLE_REGISTER_ACCOUNT = 'Student Support Services - Register Account';
+$SUBJECT_REGISTER_ACCOUNT = null;
+$HTML_CODE_REGISTER_ACCOUNT = null;
+
+while ($row = $result->fetch_assoc()) {
+  // Match titles case-insensitively and trim whitespace to avoid mismatch
+  if (strcasecmp(trim($row['title']), trim($TITLE_RESET_PASSWORD)) === 0) {
+    $SUBJECT_RESET_PASSWORD = $row['subject'];
+    $HTML_CODE_RESET_PASSWORD = $row['html_code'];
+  }
+
+  if (strcasecmp(trim($row['title']), trim($TITLE_REGISTER_ACCOUNT)) === 0) {
+    $SUBJECT_REGISTER_ACCOUNT = $row['subject'];
+    $HTML_CODE_REGISTER_ACCOUNT = $row['html_code'];
+  }
+
+  // stop if found
+  if (
+    $HTML_CODE_RESET_PASSWORD &&
+    $HTML_CODE_REGISTER_ACCOUNT
+  ) {
+    break;
+  }
+}
+//END - TEMPLATE LIST

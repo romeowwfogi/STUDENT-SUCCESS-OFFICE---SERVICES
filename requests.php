@@ -365,10 +365,56 @@ try {
             opacity: 0.7;
         }
 
+        /* Mobile menu button (hamburger) */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--surface);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            box-shadow: var(--elevation-2);
+            color: var(--on-surface);
+        }
+
+        .mobile-menu-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Sidebar overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 999; /* below sidebar (1000), above content */
+            display: none;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Prevent body scroll when nav open */
+        body.nav-open {
+            overflow: hidden;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
+                width: 100vw; /* fallback */
+                width: -webkit-fill-available !important; /* iOS full-width */
+                height: 100vh; /* fallback */
+                height: -webkit-fill-available !important; /* iOS full-height */
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
             }
 
             .main-content {
@@ -376,12 +422,61 @@ try {
                 padding: 16px;
             }
 
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            /* Vertical card-style table on mobile */
             .requests-table-container {
-                overflow-x: auto;
+                overflow-x: hidden;
             }
 
             .requests-table {
-                min-width: 600px;
+                min-width: initial;
+                display: block;
+                border-collapse: separate;
+            }
+            .requests-table thead {
+                display: none;
+            }
+            .requests-table tbody {
+                display: block;
+            }
+            .requests-table tr {
+                display: block;
+                margin: 12px 0;
+                background: var(--surface);
+                border-radius: 12px;
+                box-shadow: var(--elevation-1);
+                overflow: hidden;
+            }
+            .requests-table td {
+                display: grid;
+                grid-template-columns: 110px 1fr;
+                gap: 10px;
+                padding: 12px 16px;
+                border: none;
+                text-align: left !important;
+            }
+            .requests-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--on-surface);
+                opacity: 0.85;
+            }
+            .requests-table tr:hover {
+                background: var(--surface);
+            }
+        }
+
+        /* Ultra-small screens tweaks */
+        @media (max-width: 480px) {
+            .requests-table {
+                min-width: 480px;
+            }
+            .requests-table th,
+            .requests-table td {
+                padding: 12px;
             }
         }
     </style>
@@ -402,8 +497,14 @@ try {
             }
         })();
     </script>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <i data-lucide="menu"></i>
+    </button>
+    <!-- Overlay shown when sidebar is open on mobile -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2 class="user-fullname">
                 <i data-lucide="graduation-cap"></i>
@@ -485,26 +586,28 @@ try {
                         <tbody>
                             <?php foreach ($requests as $request): ?>
                                 <tr>
-                                    <td class="request-number"><?php echo htmlspecialchars($request['request_id']); ?></td>
-                                    <td>
+                                    <td class="request-number" data-label="#">
+                                        <?php echo htmlspecialchars($request['request_id']); ?>
+                                    </td>
+                                    <td data-label="Service">
                                         <div class="service-name"><?php echo htmlspecialchars($request['service_name']); ?></div>
                                         <div class="request-date">
                                             Requested on <?php echo date('M j, Y \a\t g:i A', strtotime($request['requested_at'])); ?>
                                         </div>
                                     </td>
-                                    <td style="text-align: center;">
+                                    <td style="text-align: center;" data-label="Status">
                                         <span class="status-badge" style="background-color: <?php echo htmlspecialchars($request['color_hex']); ?>">
                                             <?php echo htmlspecialchars($request['status_name']); ?>
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Remarks">
                                         <?php if (!empty($request['admin_remarks'])): ?>
                                             <div class="remarks"><?php echo nl2br(htmlspecialchars($request['admin_remarks'])); ?></div>
                                         <?php else: ?>
                                             <div class="no-remarks">No remarks yet</div>
                                         <?php endif; ?>
                                     </td>
-                                    <td style="text-align: center;">
+                                    <td style="text-align: center;" data-label="Action">
                                         <div style="display:inline-flex; gap:8px;">
                                             <a href="request_view.php?request_id=<?php echo htmlspecialchars($request['request_id']); ?>" style="background: var(--primary); color: var(--on-primary); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; box-shadow: var(--elevation-1); text-decoration: none; display: inline-block;">
                                                 View
@@ -547,6 +650,48 @@ try {
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar) {
+                const willActivate = !sidebar.classList.contains('active');
+                sidebar.classList.toggle('active');
+                document.body.classList.toggle('nav-open', willActivate);
+                if (overlay) overlay.classList.toggle('active', willActivate);
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                document.body.classList.remove('nav-open');
+                if (overlay) overlay.classList.remove('active');
+            }
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            if (
+                window.innerWidth <= 768 &&
+                sidebar &&
+                !sidebar.contains(event.target) &&
+                menuBtn &&
+                !menuBtn.contains(event.target) &&
+                sidebar.classList.contains('active')
+            ) {
+                sidebar.classList.remove('active');
+                document.body.classList.remove('nav-open');
+                if (overlay) overlay.classList.remove('active');
+            }
+        });
 
         function handleUpdateClick(requestId, canUpdate) {
             try {
