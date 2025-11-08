@@ -12,6 +12,8 @@ include_once __DIR__ . '/modal.php';
 include_once __DIR__ . '/loader.php';
 
 $needsProfile = false;
+// Prepare display fullname
+$displayFullname = 'N/A';
 try {
     $uid = intval($_SESSION['user_id']);
     $stmt = $conn->prepare('SELECT first_name, last_name, middle_name, suffix FROM services_users WHERE id = ? LIMIT 1');
@@ -20,9 +22,14 @@ try {
     $res = $stmt->get_result();
     if ($res && $row = $res->fetch_assoc()) {
         $fn = trim((string)($row['first_name'] ?? ''));
+        $mn = trim((string)($row['middle_name'] ?? ''));
         $ln = trim((string)($row['last_name'] ?? ''));
+        $sf = trim((string)($row['suffix'] ?? ''));
         if ($fn === '' || $ln === '') {
             $needsProfile = true;
+            $displayFullname = 'N/A';
+        } else {
+            $displayFullname = trim($fn . ($mn ? ' ' . $mn : '') . ' ' . $ln . ($sf ? ' ' . $sf : ''));
         }
     }
 } catch (Throwable $t) {
@@ -133,3 +140,24 @@ if ($needsProfile): ?>
         })();
     </script>
 <?php endif; ?>
+
+<script>
+    // Populate user fullname in any element with class "user-fullname"
+    (function() {
+        const displayName = <?php echo json_encode($displayFullname); ?>;
+        const nodes = document.querySelectorAll('.user-fullname');
+        nodes.forEach(el => {
+            const icon = el.querySelector('i[data-lucide]');
+            if (icon) {
+                try {
+                    const iconHTML = icon.outerHTML;
+                    el.innerHTML = iconHTML + ' ' + displayName;
+                } catch (e) {
+                    el.textContent = displayName;
+                }
+            } else {
+                el.textContent = displayName;
+            }
+        });
+    })();
+</script>

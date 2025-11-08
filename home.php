@@ -717,8 +717,7 @@ try {
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2>
-                <i data-lucide="graduation-cap"></i>
+            <h2 class="user-fullname">
                 Student Success
             </h2>
         </div>

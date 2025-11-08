@@ -405,7 +405,7 @@ try {
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <h2>
+            <h2 class="user-fullname">
                 <i data-lucide="graduation-cap"></i>
                 Student Success Office
             </h2>

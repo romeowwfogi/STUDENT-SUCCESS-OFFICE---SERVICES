@@ -231,7 +231,7 @@ try {
 <body>
     <aside class="sidebar">
         <div class="sidebar-header">
-            <h2><i data-lucide="graduation-cap"></i> Student Success Office</h2>
+            <h2 class="user-fullname">Student Success Office</h2>
         </div>
         <nav>
             <ul class="sidebar-nav">

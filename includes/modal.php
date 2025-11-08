@@ -202,6 +202,43 @@
     window.messageModalV1CurrentCancelAction = null;
 </script>
 
+<script>
+    // Attach global logout confirmation across pages
+    setTimeout(() => {
+        const logoutLinks = Array.from(document.querySelectorAll('a'))
+            .filter(a => a.querySelector('i[data-lucide="log-out"]') || /logout/i.test((a.textContent || '').trim()));
+
+        const confirmLogout = (e) => {
+            if (e) e.preventDefault();
+            if (typeof messageModalV1Show === 'function') {
+                messageModalV1Show({
+                    icon: `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' width='28' height='28'><path stroke-linecap='round' stroke-linejoin='round' d='M13 16V7m0 0l-4 4m4-4l4 4' /><path stroke-linecap='round' stroke-linejoin='round' d='M3 12c0-4.418 3.582-8 8-8a8 8 0 110 16c-4.418 0-8-3.582-8-8z' /></svg>`,
+                    iconBg: '#eef2ff',
+                    actionBtnBg: '#b91c1c',
+                    title: 'Log out?',
+                    message: 'Are you sure you want to log out? You will be redirected to the login page.',
+                    cancelText: 'Cancel',
+                    actionText: 'Logout',
+                    onConfirm: () => {
+                        window.location.href = 'logout.php';
+                    }
+                });
+            } else {
+                // Fallback if modal is unavailable
+                if (window.confirm('Are you sure you want to log out?')) {
+                    window.location.href = 'logout.php';
+                }
+            }
+        };
+
+        logoutLinks.forEach(a => {
+            if (a.dataset.logoutHandler === '1') return;
+            a.dataset.logoutHandler = '1';
+            a.addEventListener('click', confirmLogout);
+        });
+    }, 0);
+</script>
+
 <!-- <button onclick="messageModalV1Show({
   icon: `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' width='28' height='28'><path stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12' /></svg>`,
   iconBg: '#fee2e2',
