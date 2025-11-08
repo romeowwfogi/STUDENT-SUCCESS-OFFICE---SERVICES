@@ -1,4 +1,7 @@
 <?php
+// Enforce authentication for user-facing pages
+require_once 'includes/auth_guard.php';
+
 // Include database connection
 require_once 'connection/main_connection.php';
 
@@ -734,7 +737,7 @@ try {
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="settings.php">
                         <i data-lucide="settings"></i>
                         Settings
                     </a>
@@ -851,9 +854,11 @@ try {
         </div>
     </main>
 
+    <?php include __DIR__ . '/includes/profile_guard.php'; ?>
+
     <!-- Include Modal -->
     <?php include "includes/modal.php"; ?>
-    
+
     <!-- Include Loader -->
     <?php include "includes/loader.php"; ?>
 
@@ -973,7 +978,13 @@ try {
                     hideLoader();
 
                     if (data.error) {
-                        alert('Error loading service form: ' + data.error);
+                        showErrorMessage('Error loading service form: ' + data.error, 'Error');
+                        return;
+                    }
+
+                    // If no fields are defined, show error modal and stop
+                    if (!data.fields || data.fields.length === 0) {
+                        showErrorMessage('No fields are configured for this service. Please try again later or contact support.', 'Service Unavailable');
                         return;
                     }
 
@@ -981,41 +992,30 @@ try {
                     let formHTML = `<div style="margin-top: 8px;">
                         <p style="margin-bottom: 16px; color: #6b7280;">You are requesting: <strong>${serviceName}</strong></p>`;
 
-                    // If no fields are defined, show default fields
-                    if (!data.fields || data.fields.length === 0) {
-                        formHTML += `
-                            <div style="margin-bottom: 16px;">
-                                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #374151; font-size: 14px;">Full Name</label>
-                                <input type="text" id="service-fullname" placeholder="Enter your full name" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;" required />
-                            </div>
-                            
-                            <div style="margin-bottom: 16px;">
-                                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #374151; font-size: 14px;">Email Address</label>
-                                <input type="email" id="service-email" placeholder="Enter your email address" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;" required />
-                            </div>
-                            
-                            <div style="margin-bottom: 16px;">
-                                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #374151; font-size: 14px;">Student ID</label>
-                                <input type="text" id="service-student-id" placeholder="Enter your student ID" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;" required />
-                            </div>
-                            
-                            <div style="margin-bottom: 16px;">
-                                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #374151; font-size: 14px;">Additional Notes (Optional)</label>
-                                <textarea id="service-notes" placeholder="Any additional information or special requests..." style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif; min-height: 80px; resize: vertical;"></textarea>
-                            </div>`;
-                    } else {
+                    {
                         // Generate dynamic fields
                         data.fields.forEach(field => {
                             const fieldId = `field-${field.field_id}`;
                             const required = field.is_required ? 'required' : '';
                             const requiredText = field.is_required ? ' *' : '';
+                            const visibleOptionId = field.visible_when_option_id || null;
 
-                            formHTML += `<div style="margin-bottom: 16px;">
+                            // Wrap each field in a container used for conditional visibility
+                            const initialDisplay = visibleOptionId ? 'none' : 'block';
+                            formHTML += `<div id="field-container-${fieldId}" data-field-id="${fieldId}" data-visible-when-option-id="${visibleOptionId ?? ''}" style="display: ${initialDisplay}; margin-bottom: 16px; position: relative;">
                                 <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #374151; font-size: 14px;">${field.label}${requiredText}</label>`;
 
                             switch (field.field_type) {
                                 case 'text':
                                     formHTML += `<input type="text" id="${fieldId}" placeholder="Enter ${field.label.toLowerCase()}" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;" ${required} />`;
+                                    break;
+
+                                case 'email':
+                                    formHTML += `<input type="email" id="${fieldId}" placeholder="Enter ${field.label.toLowerCase()}" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;" ${required} />`;
+                                    break;
+
+                                case 'number':
+                                    formHTML += `<input type="number" id="${fieldId}" placeholder="Enter ${field.label.toLowerCase()}" style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;" ${required} />`;
                                     break;
 
                                 case 'textarea':
@@ -1031,7 +1031,7 @@ try {
                                         <option value="">Select ${field.label.toLowerCase()}</option>`;
                                     if (field.options) {
                                         field.options.forEach(option => {
-                                            formHTML += `<option value="${option.option_value}">${option.option_label}</option>`;
+                                            formHTML += `<option value="${option.option_value}" data-option-id="${option.option_id}">${option.option_label}</option>`;
                                         });
                                     }
                                     formHTML += `</select>`;
@@ -1042,7 +1042,7 @@ try {
                                         field.options.forEach((option, index) => {
                                             formHTML += `<div style="margin-bottom: 8px;">
                                                 <label style="display: flex; align-items: center; font-size: 14px; color: #374151;">
-                                                    <input type="radio" name="${fieldId}" value="${option.option_value}" style="margin-right: 8px;" ${required && index === 0 ? 'required' : ''} />
+                                                    <input type="radio" name="${fieldId}" value="${option.option_value}" data-option-id="${option.option_id}" style="margin-right: 8px;" ${required && index === 0 ? 'required' : ''} />
                                                     ${option.option_label}
                                                 </label>
                                             </div>`;
@@ -1055,7 +1055,7 @@ try {
                                         field.options.forEach(option => {
                                             formHTML += `<div style="margin-bottom: 8px;">
                                                 <label style="display: flex; align-items: center; font-size: 14px; color: #374151;">
-                                                    <input type="checkbox" name="${fieldId}[]" value="${option.option_value}" style="margin-right: 8px;" />
+                                                    <input type="checkbox" name="${fieldId}[]" value="${option.option_value}" data-option-id="${option.option_id}" style="margin-right: 8px;" />
                                                     ${option.option_label}
                                                 </label>
                                             </div>`;
@@ -1069,7 +1069,7 @@ try {
                                     break;
                             }
 
-                            formHTML += `</div>`;
+                            formHTML += `</div>`; // end field-container
                         });
                     }
 
@@ -1102,13 +1102,96 @@ try {
                             firstInput.focus();
                         }
                     }, 100);
+
+                    // Wire up conditional visibility after modal renders
+                    setTimeout(() => {
+                        setupFieldDependencies(data.fields || []);
+                        attachFieldErrorClearHandlers(data.fields || []);
+                    }, 0);
                 })
                 .catch(error => {
                     // Hide loader on error
                     hideLoader();
                     console.error('Error fetching service fields:', error);
-                    alert('Error loading service form. Please try again.');
+                    showErrorMessage('Error loading service form. Please try again.', 'Error');
                 });
+        }
+
+        // Tooltip helpers for field-level validation
+        function ensureTooltipStyles() {
+            if (document.getElementById('field-error-tooltip-styles')) return;
+            const style = document.createElement('style');
+            style.id = 'field-error-tooltip-styles';
+            style.textContent = `
+                .field-error-tooltip { position: absolute; top: 100%; left: 0; transform: translateY(4px); background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; padding: 6px 8px; font-size: 12px; z-index: 30000; box-shadow: 0 4px 10px rgba(0,0,0,0.06); max-width: 420px; }
+                .field-error-tooltip::after { content: ''; position: absolute; top: -6px; left: 10px; border-width: 6px; border-style: solid; border-color: transparent transparent #fee2e2 transparent; }
+                .field-error-shake { animation: fieldErrorShake 160ms ease-in-out 0s 2; }
+                @keyframes fieldErrorShake { 0%{ transform: translateX(0); } 25%{ transform: translateX(-2px); } 50%{ transform: translateX(2px);} 75%{ transform: translateX(-1px);} 100%{ transform: translateX(0);} }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function showFieldErrorTooltip(fieldId, message) {
+            ensureTooltipStyles();
+            const container = document.getElementById(`field-container-${fieldId}`);
+            if (!container) return;
+            // Remove existing tooltip first
+            clearFieldErrorTooltip(fieldId);
+            const tip = document.createElement('div');
+            tip.className = 'field-error-tooltip';
+            tip.dataset.fieldId = fieldId;
+            tip.innerHTML = message;
+            container.appendChild(tip);
+            container.classList.add('field-error-shake');
+            setTimeout(() => container.classList.remove('field-error-shake'), 400);
+        }
+
+        function clearFieldErrorTooltip(fieldId) {
+            const container = document.getElementById(`field-container-${fieldId}`);
+            if (!container) return;
+            const existing = container.querySelector('.field-error-tooltip');
+            if (existing) existing.remove();
+        }
+
+        function clearAllFieldErrorTooltips() {
+            document.querySelectorAll('#message-modalv1-confirm-modal .field-error-tooltip').forEach(el => el.remove());
+        }
+
+        function scrollAndFocusField(fieldId) {
+            const modalRoot = document.getElementById('message-modalv1-confirm-modal');
+            if (!modalRoot) return;
+            const input = modalRoot.querySelector(`#${fieldId}, input[name="${fieldId}"], input[name="${fieldId}[]"], select#${fieldId}, textarea#${fieldId}`);
+            const container = document.getElementById(`field-container-${fieldId}`) || input;
+            if (container) {
+                container.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+            if (input && typeof input.focus === 'function') {
+                input.focus();
+            }
+        }
+
+        function attachFieldErrorClearHandlers(fields) {
+            const modalRoot = document.getElementById('message-modalv1-confirm-modal');
+            if (!modalRoot) return;
+            fields.forEach(field => {
+                const fieldId = `field-${field.field_id}`;
+                if (field.field_type === 'radio') {
+                    const radios = modalRoot.querySelectorAll(`input[name="${fieldId}"]`);
+                    radios.forEach(r => r.addEventListener('change', () => clearFieldErrorTooltip(fieldId)));
+                } else if (field.field_type === 'checkbox') {
+                    const checks = modalRoot.querySelectorAll(`input[name="${fieldId}[]"]`);
+                    checks.forEach(c => c.addEventListener('change', () => clearFieldErrorTooltip(fieldId)));
+                } else {
+                    const input = document.getElementById(fieldId);
+                    if (input) {
+                        input.addEventListener('input', () => clearFieldErrorTooltip(fieldId));
+                        input.addEventListener('change', () => clearFieldErrorTooltip(fieldId));
+                    }
+                }
+            });
         }
 
         // Function to validate and submit dynamic form
@@ -1116,6 +1199,12 @@ try {
             const formData = new FormData();
             let isValid = true;
             let firstErrorField = null;
+            let hasAnyValue = false;
+            let errorMessage = null;
+            const errors = [];
+
+            // Clear any previous tooltips
+            clearAllFieldErrorTooltips();
 
             // If no fields defined, use default validation
             if (!fields || fields.length === 0) {
@@ -1125,20 +1214,20 @@ try {
                 const notes = document.getElementById('service-notes')?.value.trim();
 
                 if (!fullName) {
-                    alert('Please enter your full name.');
+                    showErrorMessage('Please enter your full name.');
                     return;
                 }
                 if (!email) {
-                    alert('Please enter your email address.');
+                    showErrorMessage('Please enter your email address.');
                     return;
                 }
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
-                    alert('Please enter a valid email address.');
+                    showErrorMessage('Please enter a valid email address.');
                     return;
                 }
                 if (!studentId) {
-                    alert('Please enter your student ID.');
+                    showErrorMessage('Please enter your student ID.');
                     return;
                 }
 
@@ -1147,27 +1236,61 @@ try {
                 return;
             }
 
+            // Utility: check if controlling option is active
+            function isControllingOptionActive(optionId) {
+                if (!optionId) return true;
+                const modalRoot = document.getElementById('message-modalv1-confirm-modal');
+                if (!modalRoot) return true;
+                const optInput = modalRoot.querySelector(`[data-option-id="${optionId}"]`);
+                if (!optInput) return false;
+                if (optInput.tagName === 'OPTION') {
+                    return optInput.selected === true;
+                }
+                if (optInput.type === 'checkbox' || optInput.type === 'radio') {
+                    return optInput.checked === true;
+                }
+                return false;
+            }
+
             // Validate dynamic fields
             fields.forEach(field => {
                 const fieldId = `field-${field.field_id}`;
+                const visibleOptionId = field.visible_when_option_id || null;
+
+                // Skip validation/appending if field is conditionally hidden
+                if (visibleOptionId && !isControllingOptionActive(visibleOptionId)) {
+                    return; // hidden -> not applicable
+                }
 
                 if (field.field_type === 'radio') {
                     const radioInputs = document.querySelectorAll(`input[name="${fieldId}"]:checked`);
                     if (field.is_required && radioInputs.length === 0) {
                         isValid = false;
                         if (!firstErrorField) firstErrorField = field.label;
+                        errors.push({
+                            fieldId,
+                            message: `${field.label} is required.`
+                        });
                     } else if (radioInputs.length > 0) {
                         formData.append(fieldId, radioInputs[0].value);
+                        hasAnyValue = true;
                     }
                 } else if (field.field_type === 'checkbox') {
                     const checkboxInputs = document.querySelectorAll(`input[name="${fieldId}[]"]:checked`);
                     if (field.is_required && checkboxInputs.length === 0) {
                         isValid = false;
                         if (!firstErrorField) firstErrorField = field.label;
+                        errors.push({
+                            fieldId,
+                            message: `${field.label} is required.`
+                        });
                     } else {
                         checkboxInputs.forEach(checkbox => {
                             formData.append(`${fieldId}[]`, checkbox.value);
                         });
+                        if (checkboxInputs.length > 0) {
+                            hasAnyValue = true;
+                        }
                     }
                 } else {
                     const input = document.getElementById(fieldId);
@@ -1176,13 +1299,75 @@ try {
                         if (field.is_required && !value) {
                             isValid = false;
                             if (!firstErrorField) firstErrorField = field.label;
+                            errors.push({
+                                fieldId,
+                                message: `${field.label} is required.`
+                            });
                         } else if (value) {
                             if (field.field_type === 'file') {
                                 if (input.files && input.files[0]) {
-                                    formData.append(fieldId, input.files[0]);
+                                    const file = input.files[0];
+                                    const allowed = (field.allowed_file_types || '')
+                                        .split(',')
+                                        .map(s => s.trim().toLowerCase())
+                                        .filter(Boolean);
+                                    const maxMb = field.max_file_size_mb ? Number(field.max_file_size_mb) : null;
+
+                                    const fileIssues = [];
+                                    if (allowed.length) {
+                                        const ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
+                                        if (!allowed.includes(ext)) {
+                                            fileIssues.push(`${field.label}: only ${allowed.join(', ')} files are allowed.`);
+                                        }
+                                    }
+                                    if (maxMb && Number.isFinite(maxMb)) {
+                                        const maxBytes = maxMb * 1024 * 1024;
+                                        if (file.size > maxBytes) {
+                                            fileIssues.push(`${field.label}: file exceeds ${maxMb} MB size limit.`);
+                                        }
+                                    }
+
+                                    if (fileIssues.length) {
+                                        isValid = false;
+                                        if (!firstErrorField) firstErrorField = field.label;
+                                        fileIssues.forEach(msg => errors.push({
+                                            fieldId,
+                                            message: msg
+                                        }));
+                                    } else {
+                                        formData.append(fieldId, file);
+                                        hasAnyValue = true;
+                                    }
+                                }
+                            } else if (field.field_type === 'email') {
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (!emailRegex.test(value)) {
+                                    isValid = false;
+                                    if (!firstErrorField) firstErrorField = field.label;
+                                    errors.push({
+                                        fieldId,
+                                        message: `Please enter a valid email for: ${field.label}`
+                                    });
+                                } else {
+                                    formData.append(fieldId, value);
+                                    hasAnyValue = true;
+                                }
+                            } else if (field.field_type === 'number') {
+                                const numVal = Number(value);
+                                if (Number.isNaN(numVal)) {
+                                    isValid = false;
+                                    if (!firstErrorField) firstErrorField = field.label;
+                                    errors.push({
+                                        fieldId,
+                                        message: `Please enter a valid number for: ${field.label}`
+                                    });
+                                } else {
+                                    formData.append(fieldId, value);
+                                    hasAnyValue = true;
                                 }
                             } else {
                                 formData.append(fieldId, value);
+                                hasAnyValue = true;
                             }
                         }
                     }
@@ -1190,7 +1375,28 @@ try {
             });
 
             if (!isValid) {
-                alert(`Please fill in the required field: ${firstErrorField}`);
+                // Show field-level tooltips instead of modal
+                const modalRoot = document.getElementById('message-modalv1-confirm-modal');
+                if (modalRoot) {
+                    errors.forEach(err => {
+                        if (err && err.fieldId) {
+                            showFieldErrorTooltip(err.fieldId, err.message);
+                        }
+                    });
+                    // Focus and scroll to the first error field
+                    if (errors.length > 0 && errors[0].fieldId) {
+                        scrollAndFocusField(errors[0].fieldId);
+                    }
+                }
+                return;
+            }
+
+            // If none of the dynamic fields have any value (all optional and empty), show error modal
+            if (fields && fields.length > 0 && !hasAnyValue) {
+                // Attach a tooltip to the first field prompting user to provide input
+                const firstFieldId = `field-${fields[0].field_id}`;
+                showFieldErrorTooltip(firstFieldId, 'Please complete at least one field before submitting.');
+                scrollAndFocusField(firstFieldId);
                 return;
             }
 
@@ -1211,7 +1417,7 @@ try {
                     hideLoader();
 
                     if (data.error) {
-                        alert('Error submitting request: ' + data.error);
+                        showErrorMessage('Error submitting request: ' + data.error, 'Submission Error');
                     } else {
                         showSuccessMessage(data.service_name, data.request_id);
                     }
@@ -1220,8 +1426,92 @@ try {
                     // Hide loader on error
                     hideLoader();
                     console.error('Error submitting form:', error);
-                    alert('Error submitting request. Please try again.');
+                    showErrorMessage('Error submitting request. Please try again.', 'Submission Error');
                 });
+        }
+
+        // Setup conditional field visibility based on option selection
+        function setupFieldDependencies(fields) {
+            const modalRoot = document.getElementById('message-modalv1-confirm-modal');
+            if (!modalRoot) return;
+
+            // Map optionId -> dependent containers
+            const depsMap = {};
+            fields.forEach(f => {
+                const optId = f.visible_when_option_id || null;
+                if (!optId) return;
+                const containerId = `field-container-field-${f.field_id}`;
+                const containerEl = document.getElementById(containerId);
+                // Backward compatibility: our container id uses fieldId string above
+                const containerEl2 = document.getElementById(`field-container-${"field-" + f.field_id}`) || document.getElementById(`field-container-${containerId}`);
+                const finalContainer = containerEl2 || containerEl;
+                if (!finalContainer) return;
+                if (!depsMap[optId]) depsMap[optId] = [];
+                depsMap[optId].push(finalContainer);
+            });
+
+            // Helper to update display for a given option id
+            function updateDisplayForOption(optionId) {
+                const activeEl = modalRoot.querySelector(`[data-option-id="${optionId}"]`);
+                let isActive = false;
+                if (activeEl) {
+                    if (activeEl.tagName === 'OPTION') {
+                        // Ensure we evaluate selection from its select
+                        isActive = activeEl.selected === true;
+                    } else if (activeEl.type === 'checkbox' || activeEl.type === 'radio') {
+                        isActive = activeEl.checked === true;
+                    }
+                }
+                const targets = depsMap[optionId] || [];
+                targets.forEach(el => {
+                    el.style.display = isActive ? 'block' : 'none';
+                });
+            }
+
+            // Attach listeners for each controlling element
+            Object.keys(depsMap).forEach(optionId => {
+                const controls = modalRoot.querySelectorAll(`[data-option-id="${optionId}"]`);
+                controls.forEach(ctrl => {
+                    if (ctrl.tagName === 'OPTION') {
+                        const selectEl = ctrl.closest('select');
+                        if (selectEl) {
+                            selectEl.addEventListener('change', () => updateDisplayForOption(optionId));
+                        }
+                    } else if (ctrl.type === 'checkbox' || ctrl.type === 'radio') {
+                        const groupName = ctrl.name;
+                        const groupInputs = modalRoot.querySelectorAll(`input[name="${groupName}"]`);
+                        groupInputs.forEach(inp => {
+                            inp.addEventListener('change', () => updateDisplayForOption(optionId));
+                        });
+                    }
+                });
+                // Initial evaluation
+                updateDisplayForOption(optionId);
+            });
+        }
+
+        // Function to show error message in a modal
+        function showErrorMessage(message, title = 'Validation Error', onOk = null) {
+            messageModalV1Show({
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+                iconBg: '#fee2e2',
+                actionBtnBg: '#b91c1c',
+                showCancelBtn: false,
+                title: title,
+                message: message,
+                actionText: 'OK',
+                dismissOnConfirm: true,
+                onConfirm: () => {
+                    messageModalV1Dismiss();
+                    if (typeof onOk === 'function') {
+                        try {
+                            onOk();
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+                }
+            });
         }
 
         // Function to show success message

@@ -12,8 +12,7 @@ require_once 'connection/main_connection.php';
 // Validate request_id
 $request_id = isset($_GET['request_id']) ? intval($_GET['request_id']) : 0;
 if ($request_id <= 0) {
-    http_response_code(400);
-    echo 'Invalid request ID';
+    header('Location: error.php?type=invalid_request');
     exit;
 }
 
@@ -32,8 +31,7 @@ try {
     $stmt->execute();
     $res = $stmt->get_result();
     if ($res->num_rows === 0) {
-        http_response_code(403);
-        echo 'Access denied or request not found';
+        header('Location: error.php?type=not_found');
         exit;
     }
     $request = $res->fetch_assoc();
@@ -75,6 +73,8 @@ try {
     }
 } catch (Exception $e) {
     error_log('Error loading request view: ' . $e->getMessage());
+    header('Location: error.php?type=db');
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -370,5 +370,7 @@ try {
         lucide.createIcons();
     </script>
 </body>
+<?php include __DIR__ . '/includes/profile_guard.php'; ?>
 
 </html>
+<?php include __DIR__ . '/includes/profile_guard.php'; ?>

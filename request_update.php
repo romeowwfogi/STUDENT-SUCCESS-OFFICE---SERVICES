@@ -12,8 +12,7 @@ require_once 'connection/main_connection.php';
 // Validate request_id
 $request_id = isset($_GET['request_id']) ? intval($_GET['request_id']) : 0;
 if ($request_id <= 0) {
-    http_response_code(400);
-    echo 'Invalid request ID';
+    header('Location: error.php?type=invalid_request');
     exit;
 }
 
@@ -32,8 +31,7 @@ try {
     $stmt->execute();
     $res = $stmt->get_result();
     if ($res->num_rows === 0) {
-        http_response_code(403);
-        echo 'Access denied or request not found';
+        header('Location: error.php?type=not_found');
         exit;
     }
     $request = $res->fetch_assoc();
@@ -42,7 +40,7 @@ try {
 
     // Load fields
     $fields = [];
-    $stmtF = $conn->prepare("SELECT field_id, label, field_type, is_required, display_order FROM services_fields WHERE service_id = ? ORDER BY display_order ASC");
+    $stmtF = $conn->prepare("SELECT field_id, label, field_type, is_required, display_order, visible_when_option_id FROM services_fields WHERE service_id = ? ORDER BY display_order ASC");
     $stmtF->bind_param('i', $service_id);
     $stmtF->execute();
     $resF = $stmtF->get_result();
@@ -53,7 +51,7 @@ try {
 
     // Load options
     $options = [];
-    $stmtO = $conn->prepare("SELECT field_id, option_value, option_label FROM services_field_options WHERE field_id IN (SELECT field_id FROM services_fields WHERE service_id = ?)");
+    $stmtO = $conn->prepare("SELECT option_id, field_id, option_value, option_label FROM services_field_options WHERE field_id IN (SELECT field_id FROM services_fields WHERE service_id = ?)");
     $stmtO->bind_param('i', $service_id);
     $stmtO->execute();
     $resO = $stmtO->get_result();
@@ -76,6 +74,8 @@ try {
     $stmtA->close();
 } catch (Exception $e) {
     error_log('Error loading request update: ' . $e->getMessage());
+    header('Location: error.php?type=db');
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -273,7 +273,7 @@ try {
             <ul class="sidebar-nav">
                 <li><a href="home.php"><i data-lucide="grid-3x3"></i> Services</a></li>
                 <li><a href="requests.php" class="active"><i data-lucide="file-text"></i> My Requests</a></li>
-                <li><a href="#"><i data-lucide="settings"></i> Settings</a></li>
+                <li><a href="settings.php"><i data-lucide="settings"></i> Settings</a></li>
                 <li><a href="login.php"><i data-lucide="log-out"></i> Logout</a></li>
             </ul>
         </nav>
@@ -316,8 +316,9 @@ try {
                         $required = intval($f['is_required']) === 1;
                         $name = 'field-' . $fid;
                         $current = isset($answers[$fid]) ? $answers[$fid] : '';
+                        $visibleOptionId = isset($f['visible_when_option_id']) ? intval($f['visible_when_option_id']) : null;
                         ?>
-                        <div class="form-row">
+                        <div class="form-row" id="field-container-field-<?php echo $fid; ?>" data-visible-when-option-id="<?php echo $visibleOptionId ? htmlspecialchars($visibleOptionId) : ''; ?>" style="position: relative; display: <?php echo $visibleOptionId ? 'none' : 'block'; ?>;">
                             <label><?php echo htmlspecialchars($label); ?><?php if ($required): ?><span style="color:#ef4444; margin-left:4px;">*</span><?php endif; ?></label>
                             <?php if ($type === 'textarea'): ?>
                                 <textarea name="<?php echo $name; ?>" rows="3" <?php echo $required ? 'required' : ''; ?>><?php echo htmlspecialchars($current); ?></textarea>
@@ -328,7 +329,7 @@ try {
                                     <option value="">-- Select --</option>
                                     <?php foreach (($options[$fid] ?? []) as $opt): ?>
                                         <?php $selected = ($current === $opt['option_value']) ? 'selected' : ''; ?>
-                                        <option value="<?php echo htmlspecialchars($opt['option_value']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($opt['option_label']); ?></option>
+                                        <option value="<?php echo htmlspecialchars($opt['option_value']); ?>" data-option-id="<?php echo htmlspecialchars($opt['option_id']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($opt['option_label']); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             <?php elseif ($type === 'radio'): ?>
@@ -336,7 +337,7 @@ try {
                                     <?php foreach (($options[$fid] ?? []) as $opt): ?>
                                         <?php $checked = ($current === $opt['option_value']) ? 'checked' : ''; ?>
                                         <label style="display:inline-flex; align-items:center; gap:6px; margin-right:16px;">
-                                            <input type="radio" name="<?php echo $name; ?>" value="<?php echo htmlspecialchars($opt['option_value']); ?>" <?php echo $checked; ?> <?php echo $required ? 'required' : ''; ?> />
+                                            <input type="radio" name="<?php echo $name; ?>" value="<?php echo htmlspecialchars($opt['option_value']); ?>" data-option-id="<?php echo htmlspecialchars($opt['option_id']); ?>" <?php echo $checked; ?> <?php echo $required ? 'required' : ''; ?> />
                                             <?php echo htmlspecialchars($opt['option_label']); ?>
                                         </label>
                                     <?php endforeach; ?>
@@ -347,7 +348,7 @@ try {
                                     <?php foreach (($options[$fid] ?? []) as $opt): ?>
                                         <?php $checked = in_array($opt['option_value'], $currentVals, true) ? 'checked' : ''; ?>
                                         <label style="display:inline-flex; align-items:center; gap:6px; margin-right:16px;">
-                                            <input type="checkbox" name="<?php echo $name; ?>[]" value="<?php echo htmlspecialchars($opt['option_value']); ?>" <?php echo $checked; ?> />
+                                            <input type="checkbox" name="<?php echo $name; ?>[]" value="<?php echo htmlspecialchars($opt['option_value']); ?>" data-option-id="<?php echo htmlspecialchars($opt['option_id']); ?>" <?php echo $checked; ?> />
                                             <?php echo htmlspecialchars($opt['option_label']); ?>
                                         </label>
                                     <?php endforeach; ?>
@@ -375,6 +376,68 @@ try {
     <?php include 'includes/modal.php'; ?>
     <script>
         lucide.createIcons();
+
+        function isControllingOptionActive(optionId) {
+            if (!optionId) return true;
+            const root = document.getElementById('updateForm');
+            if (!root) return true;
+            const el = root.querySelector(`[data-option-id="${optionId}"]`);
+            if (!el) return false;
+            if (el.tagName === 'OPTION') {
+                return el.selected === true;
+            }
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                return el.checked === true;
+            }
+            return false;
+        }
+
+        function setupUpdateFieldDependencies() {
+            const root = document.getElementById('updateForm');
+            if (!root) return;
+            const depsMap = {};
+            root.querySelectorAll('.form-row[data-visible-when-option-id]').forEach(container => {
+                const optId = container.getAttribute('data-visible-when-option-id');
+                if (!optId) return;
+                if (!depsMap[optId]) depsMap[optId] = [];
+                depsMap[optId].push(container);
+            });
+
+            const updateDisplayForOption = (optionId) => {
+                const active = isControllingOptionActive(optionId);
+                const targets = depsMap[optionId] || [];
+                targets.forEach(c => {
+                    c.style.display = active ? 'block' : 'none';
+                });
+            };
+
+            Object.keys(depsMap).forEach(optionId => {
+                const controls = root.querySelectorAll(`[data-option-id="${optionId}"]`);
+                controls.forEach(ctrl => {
+                    if (ctrl.tagName === 'OPTION') {
+                        const select = ctrl.parentElement;
+                        if (select) {
+                            select.addEventListener('change', () => updateDisplayForOption(optionId));
+                        }
+                    } else {
+                        // For radios, wire the entire group so deselection also updates
+                        if (ctrl.type === 'radio' && ctrl.name) {
+                            const groupInputs = root.querySelectorAll(`input[name="${ctrl.name}"]`);
+                            groupInputs.forEach(inp => inp.addEventListener('change', () => updateDisplayForOption(optionId)));
+                        } else {
+                            ctrl.addEventListener('change', () => updateDisplayForOption(optionId));
+                        }
+                    }
+                });
+                updateDisplayForOption(optionId);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupUpdateFieldDependencies);
+        } else {
+            setupUpdateFieldDependencies();
+        }
         const form = document.getElementById('updateForm');
         const btn = document.getElementById('updateBtn');
 
@@ -443,5 +506,7 @@ try {
         });
     </script>
 </body>
+<?php include __DIR__ . '/includes/profile_guard.php'; ?>
 
 </html>
+<?php include __DIR__ . '/includes/profile_guard.php'; ?>

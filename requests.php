@@ -425,7 +425,7 @@ try {
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="settings.php">
                         <i data-lucide="settings"></i>
                         Settings
                     </a>
@@ -830,5 +830,7 @@ try {
         })();
     </script>
 </body>
+<?php include __DIR__ . '/includes/profile_guard.php'; ?>
 
 </html>
+<?php include __DIR__ . '/includes/profile_guard.php'; ?>
