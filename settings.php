@@ -38,240 +38,298 @@ try {
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        * {
-            box-sizing: border-box;
-        }
+       * {
+    box-sizing: border-box;
+}
 
-        :root {
-            --primary: #3b82f6;
-            --sidebar-bg: #1e293b;
-            --on-sidebar: #e2e8f0;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --on-surface: #475569;
-            --success: #10b981;
-            --error: #ef4444;
-        }
+:root {
+    --primary: #3b82f6;
+    --sidebar-bg: #1e293b;
+    --on-sidebar: #e2e8f0;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --on-surface: #475569;
+    --success: #49df4c;
+    --error: #ef4444;
+}
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            display: flex;
-            background: var(--background);
-            color: var(--on-surface);
-        }
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    display: flex;
+    background: var(--background);
+    color: var(--on-surface);
+}
 
-        .sidebar {
-            width: 280px;
-            background: var(--sidebar-bg);
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            z-index: 1000;
-        }
+/* IDINAGDAG: Para hindi mag-scroll ang page kapag bukas ang mobile menu */
+body.nav-open {
+    overflow: hidden;
+}
 
-        .sidebar-header {
-            padding: 24px 20px;
-            color: var(--on-sidebar);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+.sidebar {
+    width: 280px;
+    background: #154016;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    /* IDINAGDAG: Transition para sa smooth na pagbabago ng layout */
+    transition: transform 0.25s ease, width 0.25s ease;
+}
 
-        .sidebar-header h2 {
-            margin: 0;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+.sidebar-header {
+    padding: 24px 20px;
+    color: var(--on-sidebar);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #154016;
+}
 
-        .sidebar-nav {
-            list-style: none;
-            padding: 16px 0;
-            margin: 0;
-        }
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: var(--on-sidebar);
-            text-decoration: none;
-            border-radius: 8px;
-            opacity: 0.85;
-            margin: 2px 12px;
-        }
+.sidebar-nav {
+    list-style: none;
+    padding: 16px 0;
+    margin: 0;
+}
 
-        .sidebar-nav a:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.08);
-        }
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--on-sidebar);
+    text-decoration: none;
+    border-radius: 8px;
+    opacity: 0.85;
+    margin: 2px 12px;
+}
 
-        .sidebar-nav a.active {
-            background: var(--primary);
-            color: #fff;
-            opacity: 1;
-        }
+.sidebar-nav a:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.08);
+}
 
-        .sidebar-nav svg {
-            width: 20px;
-            height: 20px;
-        }
+.sidebar-nav a.active {
+    background: #148117;
+    color: #fff;
+    opacity: 1;
+}
 
-        .main-content {
-            margin-left: 280px;
-            padding: 32px;
-            width: 100%;
-        }
+.sidebar-nav svg {
+    width: 20px;
+    height: 20px;
+}
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+.main-content {
+    margin-left: 280px;
+    padding: 32px;
+    /* INAYOS: Ito ang fix para sa horizontal scroll bug */
+    flex: 1; 
+    /* IDINAGDAG: Transition para sa smooth na pag-adjust ng margin */
+    transition: margin-left 0.25s ease;
+}
 
-        .dashboard-header {
-            margin-bottom: 24px;
-        }
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
 
-        .dashboard-header h1 {
-            margin: 0 0 8px 0;
-            font-size: 22px;
-        }
+.dashboard-header {
+    margin-bottom: 24px;
+}
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+.dashboard-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+    color: #145317;
+}
 
-        .card {
-            background: var(--surface);
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
-            padding: 20px;
-        }
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
 
-        .card h2 {
-            margin: 0 0 12px 0;
-            font-size: 18px;
-        }
+.card {
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+    padding: 20px;
+}
 
-        .field {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+.card h2 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+}
 
-        .field input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-        }
+.field {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
 
-        .muted {
-            color: #64748b;
-            font-size: 13px;
-        }
+.field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+}
 
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+.muted {
+    color: #64748b;
+    font-size: 13px;
+}
 
-        .btn {
-            padding: 10px 14px;
-            border: none;
-            border-radius: 8px;
-            background: var(--primary);
-            color: #fff;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-        }
+.btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
 
-        .btn.secondary {
-            background: #334155;
-        }
+.btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    /* Ang --primary ay na-override ng linear-gradient, kaya pwede tanggalin */
+    /* background: var(--primary); */ 
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(145deg, #16aa19, #136515);
+    transform: translateY(0);
+    transition: all 0.25s ease;
+}
 
-        .status {
-            margin-top: 8px;
-            font-size: 13px;
-        }
+.btn:hover{
+    background: linear-gradient(145deg, #1d981f, #136515);
+    transform: translateY(-1px); /* lifts the button slightly */
+    filter: drop-shadow(-2px 9px 5px #000000);
+}
 
-        .status.success {
-            color: var(--success);
-        }
+.btn.secondary {
+    background: #334155;
+}
 
-        .status.error {
-            color: var(--error);
-        }
+.status {
+    margin-top: 8px;
+    font-size: 13px;
+}
 
-        @media (max-width: 980px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
+.status.success {
+    color: var(--success);
+}
 
-            .field {
-                grid-template-columns: 1fr;
-            }
-        }
+.status.error {
+    color: var(--error);
+}
 
-        .req-list {
-            list-style: disc;
-            padding-left: 20px;
-            color: #334155;
-        }
+.req-list {
+    list-style: disc;
+    padding-left: 20px;
+    color: #334155;
+}
 
-        /* Mobile menu button (hamburger) */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            background: var(--surface);
-            border: none;
-            border-radius: 12px;
-            padding: 12px;
-            cursor: pointer;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-            color: var(--on-surface);
-        }
+/* --- Mobile Menu Styles --- */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background: var(--surface);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    color: var(--on-surface);
+}
 
-        .mobile-menu-btn svg {
-            width: 24px;
-            height: 24px;
-        }
+.mobile-menu-btn svg {
+    width: 24px;
+    height: 24px;
+}
 
-        /* Mobile Responsive Sidebar */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.25s ease;
-                width: 100vw; /* fallback */
-                width: -webkit-fill-available !important; /* iOS full-width */
-                height: 100vh; /* fallback */
-                height: -webkit-fill-available !important; /* iOS full-height */
-            }
+/* IDINAGDAG: Overlay para sa mobile menu */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 999; /* Nasa ilalim ng sidebar, ibabaw ng content */
+    display: none;
+}
+.sidebar-overlay.active {
+    display: block;
+}
 
-            .sidebar.active {
-                transform: translateX(0);
-            }
 
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
-            }
+/* ================================================= */
+/* BAGO: Tablet Breakpoint                           */
+/* (769px - 1024px)                                  */
+/* ================================================= */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px; /* Paliitin ang sidebar */
+    }
+    .main-content {
+        margin-left: 220px; /* I-adjust ang content margin */
+    }
+}
 
-            .mobile-menu-btn {
-                display: block;
-            }
-        }
+
+/* ================================================= */
+/* INAYOS: Tablet Content Breakpoint                 */
+/* (<= 980px)                                        */
+/* ================================================= */
+@media (max-width: 980px) {
+    /* Ginagawang 1 column ang grid (para sa tablet at mobile) */
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Ginagawang 1 column ang field (stacking label and input) */
+    .field {
+        grid-template-columns: 1fr;
+        gap: 6px; /* Bawasan ang gap para sa stacked view */
+    }
+}
+
+
+/* ================================================= */
+/* INAYOS: Mobile Breakpoint                         */
+/* (<= 768px)                                        */
+/* ================================================= */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        /* INAYOS: Pinalitan ang 100vw ng fixed width para mas maganda */
+        width: 300px;
+        /* Tinanggal ang transition, nilipat na sa base .sidebar class */
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+}
     </style>
 </head>
 

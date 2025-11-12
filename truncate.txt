@@ -4,18 +4,3 @@ TRUNCATE TABLE services_requests;
 TRUNCATE TABLE services_field_options;
 TRUNCATE TABLE services_fields;
 SET FOREIGN_KEY_CHECKS = 1;
-
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE admission_cycles;
-TRUNCATE TABLE admission_submission;
-TRUNCATE TABLE applicant_types;
-TRUNCATE TABLE ExamRegistrations;
-TRUNCATE TABLE ExamSchedules;
-TRUNCATE TABLE form_fields;
-TRUNCATE TABLE form_field_options;
-TRUNCATE TABLE form_steps;
-TRUNCATE TABLE requirements_uploads;
-TRUNCATE TABLE submissions;
-TRUNCATE TABLE submission_data;
-TRUNCATE TABLE submission_files;
-SET FOREIGN_KEY_CHECKS = 1;

@@ -53,432 +53,556 @@ try {
         rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ================================================= */
+/* GLOBAL & BASE STYLES                */
+/* ================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        :root {
-            /* Material Design Color Palette - Dark Theme */
-            --primary: #3b82f6;
-            --primary-variant: #1d4ed8;
-            --secondary: #10b981;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --sidebar-bg: #1e293b;
-            --sidebar-surface: #334155;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --on-primary: #ffffff;
-            --on-secondary: #ffffff;
-            --on-background: #1e293b;
-            --on-surface: #475569;
-            --on-sidebar: #e2e8f0;
-            --on-error: #ffffff;
+:root {
+    /* ... (Yung mga variables mo, walang binago dito) ... */
+    --primary: #3b82f6;
+    --primary-variant: #1d4ed8;
+    --secondary: #85f087;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --sidebar-bg: #1e293b;
+    --sidebar-surface: #334155;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --success: #49df4c;
+    --on-primary: #ffffff;
+    --on-secondary: #ffffff;
+    --on-background: #1e293b;
+    --on-surface: #475569;
+    --on-sidebar: #e2e8f0;
+    --on-error: #ffffff;
+    --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+    --elevation-4: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    --elevation-5: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+}
 
-            /* Material Design Elevations */
-            --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-            --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-            --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-            --elevation-4: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
-            --elevation-5: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
-        }
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: var(--on-background);
+    background: var(--background);
+    min-height: 100vh;
+    display: flex;
+    margin: 0;
+}
 
-        body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: var(--on-background);
-            background: var(--background);
-            min-height: 100vh;
-            display: flex;
-            margin: 0;
-        }
+body.nav-open {
+    overflow: hidden;
+}
 
-        .sidebar {
-            width: 280px;
-            background: var(--sidebar-bg);
-            box-shadow: var(--elevation-3);
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            z-index: 1000;
-            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
+/* ================================================= */
+/* DESKTOP LAYOUT (BASE)               */
+/* (> 1024px)                          */
+/* ================================================= */
+.sidebar {
+    width: 280px;  /* Ito ang full desktop width */
+    background: #154016;
+    box-shadow: var(--elevation-3);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+                width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); /* Added width transition */
+}
 
-        .sidebar-header {
-            padding: 24px 20px;
-            background: var(--sidebar-bg);
-            color: var(--on-sidebar);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+.main-content {
+    margin-left: 280px; /* Dapat katugma ng sidebar width */
+    padding: 32px;
+    flex: 1;
+    background: var(--background);
+    min-height: 100vh;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
 
-        .sidebar-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-            letter-spacing: 0.15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+.sidebar-header {
+    padding: 24px 20px;
+    background: #154016;
+    color: var(--on-sidebar);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-        .sidebar-nav {
-            list-style: none;
-            padding: 16px 0;
-        }
+.sidebar-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        .sidebar-nav li {
-            margin-bottom: 0;
-        }
+.sidebar-nav {
+    list-style: none;
+    padding: 16px 0;
+}
 
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: var(--on-sidebar);
-            text-decoration: none;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            font-weight: 500;
-            font-size: 14px;
-            letter-spacing: 0.1px;
-            margin: 2px 12px;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            opacity: 0.8;
-        }
+.sidebar-nav li {
+    margin-bottom: 0;
+}
 
-        .sidebar-nav a::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.1);
-            opacity: 0;
-            transition: opacity 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            z-index: -1;
-        }
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--on-sidebar);
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.1px;
+    margin: 2px 12px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0.8;
+}
 
-        .sidebar-nav a:hover {
-            opacity: 1;
-        }
+/* ... (Yung iba pang sidebar styles mo, walang binago) ... */
+.sidebar-nav a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: -1;
+}
 
-        .sidebar-nav a:hover::before {
-            opacity: 1;
-        }
+.sidebar-nav a:hover {
+    opacity: 1;
+}
 
-        .sidebar-nav a.active {
-            background: var(--primary);
-            color: var(--on-primary);
-            opacity: 1;
-        }
+.sidebar-nav a:hover::before {
+    opacity: 1;
+}
 
-        .sidebar-nav a.active::before {
-            opacity: 0.12;
-        }
+.sidebar-nav a.active {
+    background: #1d981f;
+    color: var(--on-primary);
+    opacity: 1;
+}
 
-        .sidebar-nav svg {
-            width: 20px;
-            height: 20px;
-            stroke-width: 2;
-        }
+.sidebar-nav a.active::before {
+    opacity: 0.12;
+}
 
-        .main-content {
-            margin-left: 280px;
-            padding: 32px;
-            flex: 1;
-            background: var(--background);
-            min-height: 100vh;
-            transition: margin-left 0.3s ease;
-        }
+.sidebar-nav svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
 
-        .dashboard-header {
-            margin-bottom: 32px;
-            padding: 0;
-            background: transparent;
-            border-radius: 0;
-            box-shadow: none;
-            backdrop-filter: none;
-            text-align: left;
-        }
+/* ... (Yung header at container styles mo, walang binago) ... */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
+.dashboard-header {
+    margin-bottom: 32px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    text-align: left;
+}
 
-        .header-text h1 {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--on-background);
-            margin: 0 0 8px 0;
-            letter-spacing: -0.025em;
-            text-shadow: none;
-        }
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
 
-        .header-text p {
-            font-size: 16px;
-            color: var(--on-surface);
-            margin: 0;
-            opacity: 0.7;
-            max-width: none;
-        }
+.header-text h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #145317;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.025em;
+    text-shadow: none;
+}
 
-        /* Table Styles */
-        .requests-table-container {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: var(--elevation-1);
-            overflow: hidden;
-            margin-top: 24px;
-        }
+.header-text p {
+    font-size: 16px;
+    color: var(--on-surface);
+    margin: 0;
+    opacity: 0.7;
+    max-width: none;
+}
 
-        .requests-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
 
-        .requests-table th {
-            background: var(--primary);
-            color: var(--on-primary);
-            padding: 16px 20px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            letter-spacing: 0.1px;
-            text-transform: uppercase;
-        }
+/* ... (Yung table styles mo, walang binago) ... */
+.requests-table-container {
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--elevation-1);
+    overflow: hidden;
+    margin-top: 24px;
+}
 
-        .requests-table th:first-child {
-            width: 80px;
-            text-align: center;
-        }
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-        .requests-table th:nth-child(2) {
-            width: 40%;
-        }
+.requests-table th {
+    background: #166518;
+    color: var(--on-primary);
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.1px;
+    text-transform: uppercase;
+}
+/* ... (Yung iba pang table styles mo, walang binago) ... */
+.requests-table th:first-child {
+    width: 80px;
+    text-align: center;
+}
+.requests-table th:nth-child(2) {
+    width: 40%;
+}
+.requests-table th:nth-child(3) {
+    width: 150px;
+    text-align: center;
+}
+.requests-table th:nth-child(4) {
+    width: auto;
+}
+.requests-table th:nth-child(5) {
+    width: 140px;
+    text-align: center;
+}
+.requests-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    vertical-align: top;
+}
+.requests-table tr:hover {
+    background: rgba(59, 130, 246, 0.02);
+}
+.requests-table tr:last-child td {
+    border-bottom: none;
+}
+.request-number {
+    font-weight: 600;
+    color: #166518;
+    text-align: center;
+}
+.service-name {
+    font-weight: 500;
+    color: var(--on-background);
+    margin-bottom: 4px;
+}
+.request-date {
+    font-size: 12px;
+    color: var(--on-surface);
+    opacity: 0.7;
+}
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    max-width: 100px;
+}
+.remarks {
+    color: var(--on-surface);
+    font-size: 14px;
+    line-height: 1.5;
+}
+.no-remarks {
+    color: var(--on-surface);
+    opacity: 0.5;
+    font-style: italic;
+}
 
-        .requests-table th:nth-child(3) {
-            width: 150px;
-            text-align: center;
-        }
+/* ... (Yung empty state, buttons, tooltips mo, walang binago) ... */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--on-surface);
+}
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+.empty-state h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--on-background);
+}
+.empty-state p {
+    opacity: 0.7;
+}
+.view-btn {
+    background: #e5e7eb;
+    color: #111827;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.14);
+    transition: all 0.2s ease;
+}
+.view-btn:hover {
+    background: #d1d5db;
+    color: #0b1220;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+.view-btn:active {
+    transform: scale(0.98);
+}
+.view-btn:focus {
+    outline: 2px solid #1f2937;
+    outline-offset: 2px;
+}
+.update-btn {
+    background: #f59e0b;
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.14);
+    transition: all 0.2s ease;
+}
+.update-btn:hover {
+    background: #d97706;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    transform: translateY(-1px);
+    color: #ffffff;
+}
+.update-btn:active {
+    transform: scale(0.97);
+}
+.update-btn:focus {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+}
+.update-btn.disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+.update-btn.disabled:hover {
+    background: #f59e0b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.14);
+}
+.view-btn[data-tooltip], .update-btn[data-tooltip] { position: relative; }
+.view-btn[data-tooltip]::after, .update-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111827;
+    color: #ffffff;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    white-space: nowrap;
+    z-index: 10;
+}
+.view-btn[data-tooltip]:hover::after, .view-btn[data-tooltip]:focus::after,
+.update-btn[data-tooltip]:hover::after, .update-btn[data-tooltip]:focus::after {
+    opacity: 1;
+}
 
-        .requests-table th:nth-child(4) {
-            width: auto;
-        }
+/* Base styles for mobile menu (hidden on desktop) */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background: var(--surface);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    box-shadow: var(--elevation-2);
+    color: var(--on-surface);
+}
+.mobile-menu-btn svg {
+    width: 24px;
+    height: 24px;
+}
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 999;
+    display: none;
+}
+.sidebar-overlay.active {
+    display: block;
+}
 
-        .requests-table th:nth-child(5) {
-            width: 140px;
-            text-align: center;
-        }
 
-        .requests-table td {
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            vertical-align: top;
-        }
+/* ================================================= */
+/* TABLET LAYOUT (BAGO)                 */
+/* (769px - 1024px)                     */
+/* ================================================= */
+@media (max-width: 1024px) {
+    /* Paliitin ang sidebar at i-adjust ang content */
+    .sidebar {
+        width: 220px;
+    }
+    .main-content {
+        margin-left: 220px;
+    }
+    .header-text h1 {
+        font-size: 28px; /* Medyo maliit na title */
+    }
+}
 
-        .requests-table tr:hover {
-            background: rgba(59, 130, 246, 0.02);
-        }
 
-        .requests-table tr:last-child td {
-            border-bottom: none;
-        }
+/* ================================================= */
+/* MOBILE LAYOUT (INAYOS)              */
+/* (<= 768px)                          */
+/* ================================================= */
+@media (max-width: 768px) {
+    /* Gawing off-canvas (nakatago) ang sidebar */
+    .sidebar {
+        transform: translateX(-100%);
+        width: 300px; /* INAYOS: Imbis na 100vw, fixed width para di takpan lahat */
+        height: 100vh;
+        height: -webkit-fill-available !important;
+    }
 
-        .request-number {
-            font-weight: 600;
-            color: var(--primary);
-            text-align: center;
-        }
+    .sidebar.active {
+        transform: translateX(0);
+    }
 
-        .service-name {
-            font-weight: 500;
-            color: var(--on-background);
-            margin-bottom: 4px;
-        }
+    /* Ibalik sa simula ang margin ng content */
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+    }
 
-        .request-date {
-            font-size: 12px;
-            color: var(--on-surface);
-            opacity: 0.7;
-        }
+    /* Ipakita ang hamburger button */
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .header-text h1 {
+        font-size: 24px; /* Mas maliit pa para sa mobile */
+    }
 
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    /* Ayusin ang table para maging "cards" */
+    .requests-table-container {
+        overflow-x: hidden;
+    }
 
-        .remarks {
-            color: var(--on-surface);
-            font-size: 14px;
-            line-height: 1.5;
-        }
+    .requests-table {
+        min-width: initial;
+        display: block;
+        border-collapse: separate;
+        border-spacing: 0 12px; /* Nagdagdag ng space sa pagitan ng cards */
+    }
+    .requests-table thead {
+        display: none;
+    }
+    .requests-table tbody {
+        display: block;
+    }
+    .requests-table tr {
+        display: block;
+        margin: 0; /* Tinanggal ang margin, gagamitin ang border-spacing */
+        background: var(--surface);
+        border-radius: 12px;
+        box-shadow: var(--elevation-1);
+        overflow: hidden;
+    }
+    .requests-table td {
+        display: grid;
+        grid-template-columns: 110px 1fr; /* Label at Content */
+        gap: 10px;
+        padding: 12px 16px;
+        border: none;
+        text-align: left !important;
+        border-bottom: 1px solid rgba(0,0,0,0.03); /* Manipis na border sa bawat field */
+        word-break: break-word; /* IDINAGDAG: Para hindi umapaw ang text */
+    }
+    .requests-table tr td:last-child {
+        border-bottom: none; /* Walang border sa huling field */
+    }
+    
+    .requests-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--on-surface);
+        opacity: 0.85;
+    }
+    .requests-table tr:hover {
+        background: var(--surface); /* Alisin ang hover effect sa mobile */
+    }
+    .status-badge {
+        justify-content: center; /* Para hindi mag-center ang status sa grid */
+    }
+    .request-number {
+        text-align: left;
+    }
+}
 
-        .no-remarks {
-            color: var(--on-surface);
-            opacity: 0.5;
-            font-style: italic;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--on-surface);
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.3;
-        }
-
-        .empty-state h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--on-background);
-        }
-
-        .empty-state p {
-            opacity: 0.7;
-        }
-
-        /* Mobile menu button (hamburger) */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            background: var(--surface);
-            border: none;
-            border-radius: 12px;
-            padding: 12px;
-            cursor: pointer;
-            box-shadow: var(--elevation-2);
-            color: var(--on-surface);
-        }
-
-        .mobile-menu-btn svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* Sidebar overlay for mobile */
-        .sidebar-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.35);
-            z-index: 999; /* below sidebar (1000), above content */
-            display: none;
-        }
-        .sidebar-overlay.active {
-            display: block;
-        }
-
-        /* Prevent body scroll when nav open */
-        body.nav-open {
-            overflow: hidden;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 100vw; /* fallback */
-                width: -webkit-fill-available !important; /* iOS full-width */
-                height: 100vh; /* fallback */
-                height: -webkit-fill-available !important; /* iOS full-height */
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            /* Vertical card-style table on mobile */
-            .requests-table-container {
-                overflow-x: hidden;
-            }
-
-            .requests-table {
-                min-width: initial;
-                display: block;
-                border-collapse: separate;
-            }
-            .requests-table thead {
-                display: none;
-            }
-            .requests-table tbody {
-                display: block;
-            }
-            .requests-table tr {
-                display: block;
-                margin: 12px 0;
-                background: var(--surface);
-                border-radius: 12px;
-                box-shadow: var(--elevation-1);
-                overflow: hidden;
-            }
-            .requests-table td {
-                display: grid;
-                grid-template-columns: 110px 1fr;
-                gap: 10px;
-                padding: 12px 16px;
-                border: none;
-                text-align: left !important;
-            }
-            .requests-table td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: var(--on-surface);
-                opacity: 0.85;
-            }
-            .requests-table tr:hover {
-                background: var(--surface);
-            }
-        }
-
-        /* Ultra-small screens tweaks */
-        @media (max-width: 480px) {
-            .requests-table {
-                min-width: 480px;
-            }
-            .requests-table th,
-            .requests-table td {
-                padding: 12px;
-            }
-        }
+/* ================================================= */
+/* CONFLICTING QUERY (TINANGGAL)             */
+/* ================================================= */
+/* TINANGGAL KO ANG @media (max-width: 480px) BLOCK DITO.
+   
+   Ang rule mo dito na ".requests-table { min-width: 480px; }"
+   ay direktang sumisira sa card layout na ginawa mo sa 768px breakpoint.
+   Dahil sa 768px, ginawa mo nang vertical cards ang table (which is good),
+   pero pinipilit naman ng 480px na maging 480px ang minimum width nito,
+   kaya nagkakaroon ng horizontal scroll sa maliliit na phone.
+   
+   Hindi na ito kailangan dahil ang 768px breakpoint ay sapat na
+   para i-handle lahat ng screen size pababa.
+*/
     </style>
 </head>
 
@@ -609,11 +733,11 @@ try {
                                     </td>
                                     <td style="text-align: center;" data-label="Action">
                                         <div style="display:inline-flex; gap:8px;">
-                                            <a href="request_view.php?request_id=<?php echo htmlspecialchars($request['request_id']); ?>" style="background: var(--primary); color: var(--on-primary); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; box-shadow: var(--elevation-1); text-decoration: none; display: inline-block;">
-                                                View
+                                            <a href="request_view.php?request_id=<?php echo htmlspecialchars($request['request_id']); ?>" class="view-btn" title="View request details" aria-label="View request details" data-tooltip="View request details">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
                                             </a>
-                                            <a href="request_update.php?request_id=<?php echo htmlspecialchars($request['request_id']); ?>" onclick="return handleUpdateClick(<?php echo intval($request['request_id']); ?>, <?php echo intval($request['can_update'] ?? 0); ?>)" style="background: var(--warning); color: #111827; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; box-shadow: var(--elevation-1); text-decoration: none; display: inline-block;">
-                                                Update
+                                            <a href="request_update.php?request_id=<?php echo htmlspecialchars($request['request_id']); ?>" onclick="return handleUpdateClick(<?php echo intval($request['request_id']); ?>, <?php echo intval($request['can_update'] ?? 0); ?>)" class="update-btn<?php echo (intval($request['can_update'] ?? 0) ? '' : ' disabled'); ?>" aria-disabled="<?php echo (intval($request['can_update'] ?? 0) ? 'false' : 'true'); ?>" title="<?php echo (intval($request['can_update'] ?? 0) ? 'Update request' : 'Update unavailable for this status'); ?>" data-tooltip="<?php echo (intval($request['can_update'] ?? 0) ? 'Update request' : 'Update unavailable'); ?>">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-plus-icon lucide-clock-plus"><path d="M12 6v6l3.644 1.822"/><path d="M16 19h6"/><path d="M19 16v6"/><path d="M21.92 13.267a10 10 0 1 0-8.653 8.653"/></svg>
                                             </a>
                                         </div>
                                     </td>

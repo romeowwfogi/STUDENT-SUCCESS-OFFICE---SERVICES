@@ -89,14 +89,14 @@ try {
             /* Material Design Color Palette - Dark Theme */
             --primary: #3b82f6;
             --primary-variant: #1d4ed8;
-            --secondary: #10b981;
+            --secondary: #85f087;
             --background: #f8fafc;
             --surface: #ffffff;
             --sidebar-bg: #1e293b;
             --sidebar-surface: #334155;
             --error: #ef4444;
             --warning: #f59e0b;
-            --success: #10b981;
+            --success: #49df4c;
             --on-primary: #ffffff;
             --on-secondary: #ffffff;
             --on-background: #1e293b;
@@ -124,7 +124,7 @@ try {
 
         .sidebar {
             width: 280px;
-            background: var(--sidebar-bg);
+            background: #154016;
             box-shadow: var(--elevation-3);
             position: fixed;
             left: 0;
@@ -136,7 +136,7 @@ try {
 
         .sidebar-header {
             padding: 24px 20px;
-            background: var(--sidebar-bg);
+            background: #154016;
             color: var(--on-sidebar);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -200,7 +200,7 @@ try {
         }
 
         .sidebar-nav a.active {
-            background: var(--primary);
+            background: #148117;
             color: var(--on-primary);
             opacity: 1;
         }
@@ -250,7 +250,7 @@ try {
         .header-text h1 {
             font-size: 32px;
             font-weight: 700;
-            color: var(--on-background);
+            color: #145317;
             margin: 0 0 8px 0;
             letter-spacing: -0.025em;
             text-shadow: none;
@@ -283,10 +283,11 @@ try {
             min-width: 280px;
             height: 48px;
             transition: all 0.2s ease;
+            gap: 10PX;
         }
 
         .search-box:focus-within {
-            border-color: var(--primary);
+            border-color: #85f087;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
         }
 
@@ -324,17 +325,23 @@ try {
             min-width: 160px;
             cursor: pointer;
             transition: all 0.2s ease;
+            padding: 5px;
+          
+          
+        
         }
 
+        
+
         .filter-dropdown:hover {
-            border-color: var(--primary);
+            border-color: #85f087;
         }
 
         .filter-dropdown select {
             flex: 1;
             border: none;
             background: transparent;
-            color: var(--on-surface);
+            color: #47556975;;
             font-size: 14px;
             font-family: 'Poppins', sans-serif;
             padding: 0 16px;
@@ -352,6 +359,8 @@ try {
             height: 16px;
             pointer-events: none;
         }
+
+        /* Removed polish overrides to restore original layout */
 
         .services-grid {
             display: grid;
@@ -383,7 +392,7 @@ try {
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: linear-gradient(90deg, #85f087, #49df4c);
         }
 
         .service-card:hover {
@@ -401,7 +410,7 @@ try {
         .service-icon {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-variant));
+            background: linear-gradient(145deg, #16aa19, #136515);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -455,7 +464,7 @@ try {
 
         .service-btn,
         .cta-button {
-            background: var(--primary);
+            background: linear-gradient(145deg, #16aa19, #136515);
             color: var(--on-primary);
             border: none;
             padding: 12px 24px;
@@ -473,9 +482,9 @@ try {
 
         .service-btn:hover,
         .cta-button:hover {
-            background: var(--primary-variant);
-            transform: translateY(-1px);
-            box-shadow: var(--elevation-2);
+           background: linear-gradient(145deg, #1d981f, #136515);
+            transform: translateY(-1px); /* lifts the button slightly */
+            filter: drop-shadow(-2px 9px 5px #000000);
         }
 
         .service-status {
@@ -910,10 +919,13 @@ try {
 
                 // Show/hide card based on both search and filter
                 if (searchMatch && filterMatch) {
-                    card.style.display = 'block';
+                    // Preserve original flex layout by removing inline override
+                    card.style.removeProperty('display');
                     card.style.animation = 'fadeInUp 0.3s ease forwards';
                 } else {
+                    // Use inline none only when hidden
                     card.style.display = 'none';
+                    card.style.removeProperty('animation');
                 }
             });
 

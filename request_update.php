@@ -90,176 +90,271 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --primary: #1E3A8A;
-            --on-primary: #fff;
-            --background: #f8fafc;
-            --surface: #fff;
-            --on-surface: #64748b;
-            --on-background: #0f172a;
-            --elevation-1: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
+       :root {
+    --primary: #1E3A8A;
+    --on-primary: #fff;
+    --background: #f8fafc;
+    --surface: #fff;
+    --on-surface: #64748b;
+    --on-background: #0f172a;
+    --elevation-1: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--background);
-            margin: 0;
-        }
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--background);
+    margin: 0;
+}
 
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 280px;
-            background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
-            color: #fff;
-            box-shadow: var(--elevation-1);
-            padding: 24px;
-        }
+/* IDINAGDAG: Para hindi mag-scroll ang page kapag bukas ang mobile menu */
+body.nav-open {
+    overflow: hidden;
+}
 
-        .sidebar-header h2 {
-            margin: 0;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    background: #145317;
+    color: #fff;
+    box-shadow: var(--elevation-1);
+    padding: 24px;
+    z-index: 1000; /* IDINAGDAG: Para siguradong nasa ibabaw */
+    /* IDINAGDAG: Para sa smooth na transition */
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+                width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
 
-        .sidebar-nav {
-            list-style: none;
-            padding: 0;
-            margin: 24px 0 0 0;
-        }
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 12px;
-            border-radius: 8px;
-            opacity: .9;
-        }
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0 0;
+}
 
-        .sidebar-nav a.active {
-            background: var(--primary);
-            color: var(--on-primary);
-            opacity: 1;
-        }
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 8px;
+    opacity: .9;
+}
 
-        .main-content {
-            margin-left: 280px;
-            padding: 32px;
-            min-height: 100vh;
-        }
+.sidebar-nav a.active {
+    background: #148117;
+    color: var(--on-primary);
+    opacity: 1;
+}
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+.main-content {
+    margin-left: 280px;
+    padding: 32px;
+    min-height: 100vh;
+    /* IDINAGDAG: Para sa smooth na transition */
+    transition: margin-left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
 
-        .card {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: var(--elevation-1);
-            padding: 20px;
-        }
+.container {
+    margin: 0 auto;
+    padding: 0 50px;
+}
 
-        .header h1 {
-            margin: 0;
-            font-size: 26px;
-            color: var(--on-background);
-        }
+.card {
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--elevation-1);
+    padding: 40px;
+}
 
-        .meta {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            color: var(--on-surface);
-            font-size: 14px;
-        }
+.header h1 {
+    margin: 0;
+    font-size: 26px;
+    color: var(--on-background);
+}
 
-        .form-row {
-            margin-top: 14px;
-        }
+.meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    color: var(--on-surface);
+    font-size: 14px;
+}
 
-        .form-row label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            color: #374151;
-            font-size: 14px;
-        }
+.form-row {
+    margin-top: 14px;
+}
 
-        .form-row input[type=text],
-        .form-row input[type=date],
-        .form-row textarea,
-        .form-row select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Poppins', sans-serif;
-        }
+.form-row label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+}
 
-        .button-group {
-            margin-top: 18px;
-            display: flex;
-            gap: 10px;
-        }
+.form-row input[type=text],
+.form-row input[type=date],
+.form-row textarea,
+.form-row select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+}
 
-        .btn {
-            padding: 10px 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+.button-group {
+    margin-top: 18px;
+    display: flex;
+    gap: 10px;
+}
 
-        .btn-primary {
-            background: var(--primary);
-            color: var(--on-primary);
-        }
+.btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: none;
+}
 
-        .btn-secondary {
-            background: #e5e7eb;
-            color: #111827;
-        }
+.btn-primary {
+    background: linear-gradient(145deg, #1d981f, #136515);
+    color: var(--on-primary);
+}
 
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #fff;
-        }
+/* KRITIKAL NA AYOS: Ang :hover rule ay DAPAT laging pagkatapos ng base rule */
+.btn-primary:hover{
+    /* Ang background ay kapareho lang, kaya hindi na kailangan ulitin */
+    transform: translateY(-1px); /* lifts the button slightly */
+    filter: drop-shadow(-2px 9px 5px #000000);
+}
 
-        .remarks {
-            color: var(--on-surface);
-            font-size: 14px;
-            line-height: 1.5;
-        }
+.btn-secondary {
+    background: #e5e7eb;
+    color: #111827;
+}
 
-        .empty {
-            color: var(--on-surface);
-            font-style: italic;
-        }
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+}
 
-        @media (max-width:768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
+.remarks {
+    color: var(--on-surface);
+    font-size: 14px;
+    line-height: 1.5;
+}
 
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
-            }
-        }
+.empty {
+    color: var(--on-surface);
+    font-style: italic;
+}
+
+/* ================================================= */
+/* IDINAGDAG: Mobile Menu Button at Overlay Styles   */
+/* ================================================= */
+.mobile-menu-btn {
+    display: none; /* Itago by default */
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001; /* Nasa ibabaw ng lahat maliban sa sidebar */
+    background: var(--surface);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    box-shadow: var(--elevation-1);
+    color: var(--on-background);
+}
+
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 999; /* Nasa ilalim ng sidebar, ibabaw ng content */
+    display: none; /* Itago by default */
+}
+.sidebar-overlay.active {
+    display: block; /* Ipakita kapag active */
+}
+
+
+/* ================================================= */
+/* BAGO: Tablet Breakpoint                           */
+/* (769px - 1024px)                                  */
+/* ================================================= */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 240px; /* Paliitin ang sidebar */
+    }
+    .main-content {
+        margin-left: 240px; /* I-adjust ang content margin */
+    }
+}
+
+
+/* ================================================= */
+/* INAYOS: Mobile Breakpoint                         */
+/* (<= 768px)                                        */
+/* ================================================= */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%); /* Itago ang sidebar */
+        width: 300px; /* Palakihin ng kaunti para sa mobile view */
+    }
+    
+    /* IDINAGDAG: Class para ipakita ang sidebar */
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0; /* Alisin ang margin */
+        padding: 16px; /* Paliitin ang padding */
+    }
+
+    /* IDINAGDAG: Ipakita ang hamburger button */
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    /* INAYOS: Bawasan ang padding sa mobile */
+    .container {
+        padding: 0;
+    }
+
+    .card {
+        padding: 24px; /* Mas maliit na padding para sa card */
+    }
+}
     </style>
 </head>
 

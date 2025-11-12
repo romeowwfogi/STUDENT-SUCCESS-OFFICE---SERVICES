@@ -111,7 +111,7 @@ try {
             top: 0;
             bottom: 0;
             width: 280px;
-            background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+            background: #154016;
             color: #fff;
             box-shadow: var(--elevation-1);
             padding: 24px;
@@ -144,7 +144,7 @@ try {
         }
 
         .sidebar-nav a.active {
-            background: var(--primary);
+            background: #136515;
             color: var(--on-primary);
             opacity: 1;
         }
@@ -169,7 +169,7 @@ try {
         .header h1 {
             margin: 0;
             font-size: 28px;
-            color: var(--on-background);
+            color: #166518;
         }
 
         .status-badge {
@@ -227,8 +227,23 @@ try {
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            color: var(--primary);
+            color: #136515;
             font-weight: 500;
+                display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #136515;
+            font-weight: 500;
+            background: #e5e7eb;
+            /* color: #111827; */
+            /* padding: 10px; */
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
         }
 
         .empty {
