@@ -131,7 +131,7 @@ require_once "functions/send_email.php";
             <!-- Signup form -->
             <div class="signup-section">
                 <?php
-                $return_href = 'email-otp';
+                $return_href = $LANDING_PAGE_URL;
                 $title = 'Return to Home';
                 include "includes/auth_return.php";
                 ?>

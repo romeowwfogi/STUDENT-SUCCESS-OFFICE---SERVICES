@@ -24,7 +24,7 @@ include "functions/generalUploads.php";
 
             <div class="login-section">
                 <?php
-                $return_href = 'login.php';
+                $return_href = $LANDING_PAGE_URL;
                 $title = 'Back to Login';
                 include "includes/auth_return.php";
                 ?>
@@ -62,25 +62,52 @@ include "functions/generalUploads.php";
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1200;
             justify-content: center;
             align-items: center;
         }
-        .reset-modal-overlay.active { display: flex; }
+
+        .reset-modal-overlay.active {
+            display: flex;
+        }
+
         .reset-modal {
             background: #fff;
             width: 100%;
             max-width: 420px;
             border-radius: 14px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
-        .reset-modal h3 { margin: 0 0 8px 0; }
-        .reset-modal p { margin: 0 0 14px 0; color: #6b7280; font-size: 14px; }
-        .reset-input { width: 100%; padding: 12px 40px 12px 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; }
-        .reset-input:focus { outline: none; border-color: #2E7D32; }
-        .reset-input-wrapper { position: relative; }
+
+        .reset-modal h3 {
+            margin: 0 0 8px 0;
+        }
+
+        .reset-modal p {
+            margin: 0 0 14px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .reset-input {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .reset-input:focus {
+            outline: none;
+            border-color: #2E7D32;
+        }
+
+        .reset-input-wrapper {
+            position: relative;
+        }
+
         .reset-toggle {
             position: absolute;
             right: 10px;
@@ -90,14 +117,53 @@ include "functions/generalUploads.php";
             height: 20px;
             cursor: pointer;
         }
-        .reset-actions { display: flex; gap: 10px; margin-top: 12px; }
-        .btn { padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
-        .btn-cancel { background: #e5e7eb; color: #111827; flex: 1; }
-        .btn-action { background: #2E7D32; color: #fff; flex: 1; }
-        .error-text { color: #b91c1c; font-size: 12px; margin-top: 6px; min-height: 16px; }
-        .requirements { font-size: 12px; color: #6b7280; margin-top: 6px; }
-        .requirements .ok { color: #2E7D32; }
-        .requirements .bad { color: #b91c1c; }
+
+        .reset-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel {
+            background: #e5e7eb;
+            color: #111827;
+            flex: 1;
+        }
+
+        .btn-action {
+            background: #2E7D32;
+            color: #fff;
+            flex: 1;
+        }
+
+        .error-text {
+            color: #b91c1c;
+            font-size: 12px;
+            margin-top: 6px;
+            min-height: 16px;
+        }
+
+        .requirements {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+
+        .requirements .ok {
+            color: #2E7D32;
+        }
+
+        .requirements .bad {
+            color: #b91c1c;
+        }
     </style>
 
     <div class="reset-modal-overlay" id="resetModal">
@@ -157,6 +223,7 @@ include "functions/generalUploads.php";
             resetModal.classList.add('active');
             otpCodeInput.focus();
         }
+
         function closeResetModal() {
             resetModal.classList.remove('active');
             otpError.textContent = '';
@@ -171,11 +238,22 @@ include "functions/generalUploads.php";
             const hasUpper = /[A-Z]/.test(pw);
             const hasLower = /[a-z]/.test(pw);
             const hasDigit = /\d/.test(pw);
-            const items = [
-                { ok: hasMin, text: 'Minimum 8 characters' },
-                { ok: hasUpper, text: 'Uppercase letter' },
-                { ok: hasLower, text: 'Lowercase letter' },
-                { ok: hasDigit, text: 'Number' }
+            const items = [{
+                    ok: hasMin,
+                    text: 'Minimum 8 characters'
+                },
+                {
+                    ok: hasUpper,
+                    text: 'Uppercase letter'
+                },
+                {
+                    ok: hasLower,
+                    text: 'Lowercase letter'
+                },
+                {
+                    ok: hasDigit,
+                    text: 'Number'
+                }
             ];
             pwReq.innerHTML = items.map(i => `• <span class="${i.ok ? 'ok' : 'bad'}">${i.text}</span>`).join(' ');
             return hasMin && hasUpper && hasLower && hasDigit;
@@ -308,8 +386,14 @@ include "functions/generalUploads.php";
                 if (typeof showLoader === 'function') showLoader();
                 const res = await fetch('api/reset-password.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email_address, code: otp, new_password: newPw })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email_address,
+                        code: otp,
+                        new_password: newPw
+                    })
                 });
                 const data = await res.json();
                 if (data.success === true || data.status === 'success') {

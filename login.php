@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="login-section">
                 <?php
-                $return_href = 'email-otp';
+                $return_href = $LANDING_PAGE_URL;
                 $title = 'Return to Home';
                 include "includes/auth_return.php";
                 ?>

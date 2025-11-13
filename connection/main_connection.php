@@ -23,6 +23,9 @@ $UPDATE_REQUIREMENTS_API_URL = null;
 $PREVIEW_REQUIREMENTS = 'PREVIEW_REQUIREMENTS_URL';
 $PREVIEW_REQUIREMENTS_URL = null;
 
+$LANDING_PAGE = 'LANDING_PAGE_URL';
+$LANDING_PAGE_URL = null;
+
 while ($row = $result->fetch_assoc()) {
   if ($row['name'] === $UPLOAD_REQUIREMENTS_IMAGES) {
     $UPLOAD_REQUIREMENTS_IMAGES_API = $row['api_url'];
@@ -40,12 +43,17 @@ while ($row = $result->fetch_assoc()) {
     $PREVIEW_REQUIREMENTS_URL = $row['api_url'];
   }
 
+  if ($row['name'] === $LANDING_PAGE) {
+    $LANDING_PAGE_URL = $row['api_url'];
+  }
+
   // stop if found
   if (
     $UPLOAD_REQUIREMENTS_IMAGES_API &&
     $UPLOAD_REQUIREMENTS_BASE_URL &&
     $UPDATE_REQUIREMENTS_API_URL &&
-    $PREVIEW_REQUIREMENTS_URL
+    $PREVIEW_REQUIREMENTS_URL &&
+    $LANDING_PAGE_URL
   ) {
     break;
   }
